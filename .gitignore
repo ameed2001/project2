@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build directory
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Firebase logs and configs
+firebase-debug.log
+firebase-error.log
+.firebaserc
+
+# OS and Editor-specific files
+.DS_Store
+*.log
+*.swp
+*.swo
+*.tmp
+
+# Vercel (if used)
+.vercel/

@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+	{
+	  "type": "shell",
+	  "label": "Run Next.js app (yarn)",
+	  "command": "cd frontend && yarn dev",
+	  "isBackground": true,
+	  "group": "build"
+	},
+	{
+	  "type": "shell",
+	  "label": "Run Next.js app",
+	  "command": "npm run dev",
+	  "isBackground": true,
+	  "group": "build"
+	}
+  ]
+}

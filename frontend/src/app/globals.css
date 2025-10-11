@@ -1,0 +1,865 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    overflow-y: scroll; /* Always show scrollbar to prevent layout shift */
+    overflow-x: hidden; /* Prevent horizontal scrollbar on html */
+    scrollbar-gutter: stable; /* New property to prevent layout shift */
+    scroll-behavior: smooth;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  html::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  html {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  body {
+    width: 100%; /* Change from 100vw to 100% to prevent horizontal overflow */
+    position: relative;
+    background-color: #0f172a; /* Dark blue background for code effect */
+  }
+  
+  /* عندما يكون الجسم مقفلاً (عند فتح نافذة منبثقة) */
+  body.modal-open {
+    overflow: hidden;
+    padding-right: var(--scrollbar-width, 0px);
+    width: calc(100vw - var(--scrollbar-width, 0px));
+  }
+  
+  :root {
+    --background: 0 0% 96%; /* Light gray #F5F5F5 (PRD) */
+    --foreground: 0 0% 13%;    /* Dark Black #222222 for text on light background */
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 13%; /* Dark Black for card text */
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 13%; /* Dark Black for popover text */
+
+    --primary: 45 100% 51%; /* Golden yellow #FFC107 (PRD) */
+    --primary-foreground: 240 6% 10%; /* Dark for text on yellow, e.g. black */
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 240 6% 10%;
+
+    --muted: 210 40% 90%; /* A bit darker gray for modal buttons bg */
+    --muted-foreground: 210 30% 50%; /* Lighter gray for muted text */
+
+    --accent: 0 93% 35%; /* Deep red #B40404 (PRD) */
+    --accent-rgb: 180, 4, 4; /* RGB for accent color for use with opacity */
+    --accent-foreground: 0 0% 98%; /* White/light text on accent */
+
+    --destructive: 0 72.2% 50.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 210 20% 86.1%;
+    --input: 210 20% 89.1%;
+    --ring: 45 100% 51%; /* Golden yellow for focus */
+    
+    --radius: 0.5rem; /* Tailwind's default is 0.5rem for rounded-lg */
+    
+    --modal-content-gradient-start: #424242;
+    --modal-content-gradient-mid: #FE2E2E;
+    --modal-content-gradient-end: #086A87;
+    
+    /* متغير لعرض شريط التمرير */
+    --scrollbar-width: 0px;
+  }
+
+  .dark {
+    /* Define dark theme variables if needed, for now matching light or providing sensible defaults */
+    --background: 240 6% 10%; /* Dark background */
+    --foreground: 0 0% 90%;    /* Lighter text */
+
+    --card: 240 6% 12%;
+    --card-foreground: 0 0% 90%;
+
+    --popover: 240 6% 12%;
+    --popover-foreground: 0 0% 90%;
+
+    --primary: 45 100% 51%; 
+    --primary-foreground: 240 6% 10%;
+
+    --secondary: 240 5% 18%;
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 240 5% 22%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 0 93% 45%; /* Slightly lighter red for dark mode */
+    --accent-rgb: 180, 4, 4; 
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 72.2% 50.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5% 18%;
+    --input: 240 5% 28%;
+    --ring: 45 100% 51%;
+    
+    --modal-content-gradient-start: #222222;
+    --modal-content-gradient-mid: #D32F2F;
+    --modal-content-gradient-end: #044A5F;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Tajawal', sans-serif;
+    direction: rtl;
+    min-height: 100vh;
+    /* Prevent layout shift by reserving space for scrollbar */
+    /* width: 100vw; -- REMOVED */
+    /* overflow-x: hidden; -- MOVED TO HTML */
+    /* إضافة انتقال سلس للتغييرات */
+    transition: padding-right 0.3s ease, width 0.3s ease;
+    background: linear-gradient(to bottom, #0f172a, #1e293b); /* Gradient background for code effect */
+    position: relative;
+    overflow: hidden; /* Hide overflow for code elements */
+  }
+
+  /* Force right-to-left alignment for text and form controls globally */
+  /* This helps ensure all text and inputs default to RTL without per-component changes */
+  :where(html, body, input, textarea, select, button, label) {
+    direction: rtl;
+    text-align: right;
+  }
+
+  input, textarea, select {
+    text-align: right; /* user-typed text flows RTL */
+    direction: rtl;
+  }
+
+  /* Align placeholder text to the right too */
+  ::placeholder {
+    text-align: right;
+  }
+  
+  /* Prevent layout shift for images */
+  img, video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+/* ================== تأثيرات الخلفية البرمجية ================== */
+.code-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2; /* Behind everything */
+  pointer-events: none;
+  opacity: 0.15;
+}
+
+.code-line {
+  position: absolute;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  color: rgba(74, 222, 128, 0.3); /* Green code color */
+  animation: floatCode linear infinite;
+  animation-duration: calc(100s + (var(--i) * 10s));
+  animation-delay: calc(var(--i) * -1s);
+  white-space: nowrap;
+  user-select: none;
+  text-shadow: 0 0 5px rgba(74, 222, 128, 0.2);
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.code-cursor {
+  position: absolute;
+  width: 2px;
+  height: 24px;
+  background-color: rgba(74, 222, 128, 0.8);
+  animation: cursorBlink 1s infinite;
+  z-index: 10;
+}
+
+@keyframes floatCode {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  95% {
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes codeFadeIn {
+  from { opacity: 0; }
+  to { opacity: 0.3; }
+}
+
+/* ================== نهاية تأثيرات الخلفية البرمجية ================== */
+
+/* حلول محددة للنوافذ المنبثقة والقوائم المنسدلة */
+
+/* For Dialog overlay backdrop blur */
+.custom-dialog-overlay {
+  backdrop-filter: blur(5px);
+  /* Overlay covers the viewport and centers its child dialog */
+  position: fixed;
+  inset: 0; /* shorthand for top/right/bottom/left = 0 */
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem; /* keep space on small screens */
+  overflow: auto; /* allow scrolling if modal is taller than viewport */
+}
+
+/* إصلاح النوافذ المنبثقة */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* منع التمرير في الخلفية */
+  overflow: hidden;
+}
+
+.modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  /* منع تأثر المحتوى بالإزاحة */
+  margin: 0 auto;
+  background: rgba(31, 41, 55, 0.9); /* Semi-transparent dark background */
+  backdrop-filter: blur(10px); /* Glass effect */
+}
+
+/* إصلاح القوائم المنسدلة */
+.dropdown-menu {
+  position: absolute;
+  z-index: 1000;
+  /* منع الإزاحة عند ظهور القائمة */
+  min-width: max-content;
+  /* ضمان عدم تأثر العرض */
+  white-space: nowrap;
+}
+
+/* إصلاح البوبوفر */
+.popover-content {
+  position: absolute;
+  z-index: 1000;
+  /* منع التأثر بالإزاحة */
+  transform-origin: center;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.float-element {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(212, 175, 55, 0.1);
+    animation: float linear infinite;
+    /* Prevent layout shift */
+    pointer-events: none;
+    z-index: -1;
+}
+
+.input-field:focus + .input-label,
+.input-field:not(:placeholder-shown) + .input-label {
+    top: -0.5rem;
+    right: 0.75rem;
+    font-size: 0.75rem;
+    background-color: #1f2937;
+    color: hsl(var(--primary));
+    padding: 0 0.25rem;
+    /* Prevent layout shift */
+    position: absolute;
+    transition: all 0.2s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--primary));
+    border-color: transparent;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-70px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Dialog refinements */
+.dialog-title-style {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: hsl(var(--accent-rgb) / 0.95);
+  text-align: right;
+}
+
+.dialog-header-accent {
+  height: 6px;
+  background: linear-gradient(90deg, rgba(14,165,233,1), rgba(59,130,246,1));
+  border-radius: 9999px;
+  margin-bottom: 0.5rem;
+}
+
+/* gentle pop + fade animations */
+.animate-dialog-in {
+  animation: modalFadeIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.modal-content-gradient {
+    background: linear-gradient(135deg, var(--modal-content-gradient-start), var(--modal-content-gradient-mid), var(--modal-content-gradient-end));
+}
+
+.html-modal-close-btn {
+  color: hsl(var(--header-fg-hsl)); 
+  font-size: 28px;
+  position: absolute;
+  top: 10px;
+  left: 15px; 
+  cursor: pointer;
+  transition: transform 0.3s ease, color 0.3s ease;
+  line-height: 1; 
+  padding: 0;
+  background: transparent;
+  border: none;
+  /* Prevent layout shift */
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.html-modal-close-btn:hover {
+  transform: rotate(90deg);
+  color: hsl(var(--primary)); /* app-gold */
+}
+
+.modal-option-button {
+  @apply flex items-center justify-between w-full p-3 sm:p-4 text-right rounded-lg shadow-sm transition-all duration-200 ease-in-out;
+  @apply bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-app-gold focus:ring-opacity-50;
+  /* Prevent layout shift */
+  min-height: 70px;
+}
+
+.modal-option-button-text {
+  @apply flex-grow text-sm sm:text-base font-medium text-gray-700; 
+}
+
+.modal-option-button-icon-area {
+  @apply flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full ml-3;
+  background-color: hsl(var(--accent) / 0.1); 
+  /* Prevent layout shift */
+  flex-shrink: 0;
+}
+
+.modal-option-button-icon {
+  @apply w-4 h-4 sm:w-5 sm:h-5;
+  color: hsl(var(--accent)); 
+}
+
+.modal-footer-close-button {
+  @apply px-6 py-2 text-sm font-medium rounded-md transition-colors;
+  @apply bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400;
+  /* Prevent layout shift */
+  min-width: 120px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calculation-result-display {
+  margin-top: 1.5rem; 
+  padding: 1rem; 
+  background-color: theme('colors.gray.50'); 
+  border-radius: 0.375rem; 
+  font-weight: bold;
+  color: hsl(var(--accent)); 
+  border-right: 4px solid hsl(var(--accent)); 
+  text-align: right;
+  /* Prevent layout shift */
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.add-user-dialog-no-x > button.absolute.right-4.top-4 {
+  display: none;
+}
+
+/* 3D Flip Card Styles - Based on User Example */
+.card-flipper {
+  perspective: 1500px;
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  /* Prevent layout shift */
+  min-height: 200px;
+}
+
+.card-flipper:hover {
+  transform: translateY(-10px);
+}
+
+.card-flipper-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  /* Prevent layout shift */
+  min-height: 200px;
+}
+
+.card-flipper:hover .card-flipper-inner {
+  transform: rotateY(180deg);
+}
+
+.card-flipper-front,
+.card-flipper-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 0.75rem; /* rounded-xl */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  /* Prevent layout shift */
+  overflow: hidden;
+}
+
+.card-flipper-front {
+   border: 1px solid rgba(0,0,0,0.05);
+}
+
+.card-flipper-back {
+  transform: rotateY(180deg);
+  /* background will be applied via a class */
+  color: white;
+}
+
+.card-icon {
+  transition: all 0.5s ease;
+  transform: scale(1);
+  /* Prevent layout shift */
+  width: 60px;
+  height: 60px;
+}
+
+.card-flipper:hover .card-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  --color: hsl(0, 0%, 87%);
+  --animation: 2s ease-in-out infinite;
+  /* Prevent layout shift */
+  min-height: 80px;
+}
+
+.loader .circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border: solid 2px var(--color);
+  border-radius: 50%;
+  margin: 0 10px;
+  background-color: transparent;
+  animation: circle-keys var(--animation);
+  /* Prevent layout shift */
+  flex-shrink: 0;
+}
+
+.loader .circle .dot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--color);
+  animation: dot-keys var(--animation);
+}
+
+.loader .circle .outline {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  animation: outline-keys var(--animation);
+}
+
+.circle:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.circle:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.circle:nth-child(4) {
+  animation-delay: 0.9s;
+}
+
+.circle:nth-child(5) {
+  animation-delay: 1.2s;
+}
+
+.circle:nth-child(2) .dot {
+  animation-delay: 0.3s;
+}
+
+.circle:nth-child(3) .dot {
+  animation-delay: 0.6s;
+}
+
+.circle:nth-child(4) .dot {
+  animation-delay: 0.9s;
+}
+
+.circle:nth-child(5) .dot {
+  animation-delay: 1.2s;
+}
+
+.circle:nth-child(1) .outline {
+  animation-delay: 0.9s;
+}
+
+.circle:nth-child(2) .outline {
+  animation-delay: 1.2s;
+}
+
+.circle:nth-child(3) .outline {
+  animation-delay: 1.5s;
+}
+
+.circle:nth-child(4) .outline {
+  animation-delay: 1.8s;
+}
+
+.circle:nth-child(5) .outline {
+  animation-delay: 2.1s;
+}
+
+@keyframes circle-keys {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes dot-keys {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes outline-keys {
+  0% {
+    transform: scale(0);
+    outline: solid 20px var(--color);
+    outline-offset: 0;
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    outline: solid 0 transparent;
+    outline-offset: 20px;
+    opacity: 0;
+  }
+}
+
+/* Additional fixes to prevent layout shift */
+[data-rk] {
+  /* Fix for wallet connect modal causing layout shift */
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Fix for images without dimensions */
+img:not([width]), img:not([height]) {
+  aspect-ratio: auto;
+}
+
+/* Fix for buttons with dynamic content */
+button {
+  min-height: 44px; /* Minimum touch target size */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Smooth transitions for height changes */
+[class*="transition"] {
+  transition-property: transform, opacity, background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* إضافات خاصة لمنع إزاحة الهيكل */
+
+/* منع إزاحة المحتوى عند ظهور scrollbar */
+.no-layout-shift {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+/* للمتصفحات التي لا تدعم scrollbar-gutter */
+@supports not (scrollbar-gutter: stable) {
+  html {
+    margin-right: calc(-1 * (100vw - 100%));
+  }
+}
+
+/* حل خاص للنوافذ المنبثقة في React/Next.js */
+.modal-open-body-fix {
+  padding-right: 17px; /* عرض شريط التمرير المعياري */
+  overflow: hidden;
+}
+
+/* حل للقوائم المنسدلة في RTL */
+.dropdown-rtl {
+  right: 0;
+  left: auto;
+  transform-origin: top right;
+}
+
+/* إصلاح خاص للـ Select components */
+.select-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* منع الحركة الأفقية للمحتوى */
+.prevent-horizontal-shift {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* حل خاص للـ tooltips */
+.tooltip-no-shift {
+  position: absolute;
+  z-index: 9999;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+@keyframes checkAnim {
+  0% {
+    height: 0;
+  }
+  100% {
+    height: 10px;
+  }
+}
+
+.animate-checkAnim {
+  animation: checkAnim 0.2s forwards;
+}
+
+/* طبقة التظليل فوق الخلفية البرمجية */
+.overlay-gradient {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+  z-index: -1;
+  pointer-events: none;
+}
+/* From Uiverse.io by JaydipPrajapati1910 */ 
+.toggle-button-cover {
+  display: table-cell;
+  position: relative;
+  width: 200px;
+  height: 140px;
+  box-sizing: border-box;
+}
+
+.button-cover {
+  height: 100px;
+  margin: 20px;
+  background-color: #fff;
+  box-shadow: 0 10px 20px -8px #c5d6d6;
+  border-radius: 4px;
+}
+
+.button-cover:before {
+  counter-increment: button-counter;
+  content: counter(button-counter);
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  color: #d7e3e3;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px;
+}
+
+.button-cover,
+.knobs,
+.layer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.button {
+  position: relative;
+  top: 50%;
+  width: 74px;
+  height: 36px;
+  margin: -20px auto 0 auto;
+  overflow: hidden;
+}
+
+.checkbox {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.knobs {
+  z-index: 2;
+}
+
+.layer {
+  width: 100%;
+  background-color: #ebf7fc;
+  transition: 0.3s ease all;
+  z-index: 1;
+}
+
+.button.r,
+.button.r .layer {
+  border-radius: 100px;
+}
+
+#button-3 .knobs:before {
+  content: "YES";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 10px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1;
+  padding: 9px 4px;
+  background-color: #03a9f4;
+  border-radius: 50%;
+  transition: 0.3s ease all, left 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15);
+}
+
+#button-3 .checkbox:active + .knobs:before {
+  width: 46px;
+  border-radius: 100px;
+}
+
+#button-3 .checkbox:checked:active + .knobs:before {
+  margin-left: -26px;
+}
+
+#button-3 .checkbox:checked + .knobs:before {
+  content: "NO";
+  left: 42px;
+  background-color: #f44336;
+}
+
+#button-3 .checkbox:checked ~ .layer {
+  background-color: #fcebeb;
+}

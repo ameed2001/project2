@@ -1,0 +1,453 @@
+{
+  "users": [
+    {
+      "id": "admin-hardcoded-001",
+      "name": "مسؤول الموقع",
+      "email": "ameed2001@admin.com",
+      "password_hash": "$2a$10$VKugssmEwOvuYLZqLTU4oefHkh6H1vmNj5BjkVEXF87GI077JY0z2",
+      "role": "ADMIN",
+      "status": "ACTIVE",
+      "profileImage": "https://placehold.co/100x100.png?text=مس",
+      "createdAt": "2025-09-16T15:50:00.000Z",
+      "updatedAt": "2025-09-16T15:50:00.000Z"
+    },
+    {
+      "id": "user-1758038122806-d5r0g",
+      "name": "محمود المالك",
+      "email": "malik1234@gmail.com",
+      "password_hash": "$2a$10$t8R0Gl7AjaIUJUq9zSToAeaZHv4oLQoltX12oa2QBcd7D7EEsQJbq",
+      "role": "OWNER",
+      "status": "ACTIVE",
+      "profileImage": "https://placehold.co/100x100.png?text=مح",
+      "createdAt": "2025-09-16T15:55:22.806Z",
+      "updatedAt": "2025-09-16T15:55:22.806Z"
+    },
+    {
+      "id": "user-1758140096457-zz3vm",
+      "name": "المهندس سالم",
+      "email": "eng123@gmail.com",
+      "password_hash": "$2a$10$NYzZnHlvBeOMWLV5Uo5gb.mVtpVzszaqnAuxFm9/ECUY9CuKGyx96",
+      "role": "ENGINEER",
+      "status": "ACTIVE",
+      "profileImage": "https://placehold.co/100x100.png?text=ال",
+      "createdAt": "2025-09-17T20:14:56.457Z",
+      "updatedAt": "2025-09-17T20:14:56.457Z"
+    },
+    {
+      "id": "user-1760026071539-4z5f4",
+      "name": "م. عميد",
+      "email": "ameed@eng.com",
+      "password_hash": "$2a$10$yjBwElN/0ArIHGsRi.S2VeEVNX5.ZNNspdAY95MAlCYag3OpajcKO",
+      "role": "ENGINEER",
+      "status": "ACTIVE",
+      "profileImage": "https://placehold.co/100x100.png?text=م.",
+      "createdAt": "2025-10-09T16:07:51.539Z",
+      "updatedAt": "2025-10-09T16:07:51.539Z"
+    },
+    {
+      "id": "user-1760027238943-3l3mm",
+      "name": "المالك عميد",
+      "email": "mediaplus64@gmail.com",
+      "password_hash": "$2a$10$sY8XloRZZAS.IeUsqHSHyufC9jYRU2yM8KfbzwiVVcB5K1kYuRVru",
+      "role": "OWNER",
+      "status": "ACTIVE",
+      "profileImage": "https://placehold.co/100x100.png?text=ال",
+      "createdAt": "2025-10-09T16:27:18.943Z",
+      "updatedAt": "2025-10-09T16:27:18.943Z"
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "name": "فيلا",
+      "location": "نابلس",
+      "description": "بناء منزل كبير",
+      "startDate": "2025-09-27",
+      "endDate": "2027-10-24",
+      "status": "مخطط له",
+      "engineer": "المهندس سالم",
+      "clientName": "محمود المالك",
+      "budget": 15000000,
+      "linkedOwnerEmail": "malik1234@gmail.com",
+      "overallProgress": 0,
+      "quantitySummary": "",
+      "photos": [],
+      "timelineTasks": [],
+      "comments": [],
+      "createdAt": "2025-09-17T20:26:55.414Z"
+    },
+    {
+      "id": 2,
+      "name": "فيلا النصر",
+      "location": "رام الله",
+      "description": "",
+      "startDate": "2026-11-11",
+      "endDate": "2027-02-10",
+      "status": "قيد التنفيذ",
+      "engineer": "م. عميد",
+      "clientName": "المالك عميد",
+      "overallProgress": 1,
+      "quantitySummary": "",
+      "photos": [],
+      "timelineTasks": [
+        {
+          "id": "aef61027-b62f-4d69-8094-3a90b4532007",
+          "name": "حفر الاساسات",
+          "startDate": "2025-12-08",
+          "endDate": "2025-12-26",
+          "status": "مخطط له",
+          "color": "#f97316",
+          "progress": 0
+        },
+        {
+          "id": "1331a49c-4e5d-4da4-b033-4fbce2d89a9b",
+          "name": "حفر الاساسات",
+          "startDate": "2025-12-24",
+          "endDate": "2026-02-22",
+          "status": "مخطط له",
+          "color": "#3b82f6",
+          "progress": 0
+        }
+      ],
+      "comments": [],
+      "createdAt": "2025-10-09T16:14:09.472Z",
+      "linkedOwnerEmail": "mediaplus64@gmail.com"
+    }
+  ],
+  "logs": [
+    {
+      "id": "log-1758139849245-12lr9",
+      "action": "ADMIN_DELETE_ALL_LOGS",
+      "level": "WARNING",
+      "message": "Admin deleted all 2 system logs.",
+      "timestamp": "2025-09-17T20:10:49.245Z",
+      "user": "admin-hardcoded-001"
+    },
+    {
+      "id": "log-1758139949386-u5199",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: malik1234@gmail.com",
+      "timestamp": "2025-09-17T20:12:29.386Z",
+      "user": "user-1758038122806-d5r0g"
+    },
+    {
+      "id": "log-1758140096464-pji33",
+      "action": "USER_REGISTRATION_SUCCESS",
+      "level": "INFO",
+      "message": "User eng123@gmail.com registered. Role: ENGINEER, Status: ACTIVE.",
+      "timestamp": "2025-09-17T20:14:56.464Z",
+      "user": "user-1758140096457-zz3vm"
+    },
+    {
+      "id": "log-1758140103787-4os3d",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: eng123@gmail.com",
+      "timestamp": "2025-09-17T20:15:03.787Z",
+      "user": "user-1758140096457-zz3vm"
+    },
+    {
+      "id": "log-1758140610962-usol3",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: eng123@gmail.com",
+      "timestamp": "2025-09-17T20:23:30.962Z",
+      "user": "user-1758140096457-zz3vm"
+    },
+    {
+      "id": "log-1758140815418-yrtze",
+      "action": "PROJECT_ADD_SUCCESS",
+      "level": "INFO",
+      "message": "Project \"فيلا\" (ID: 1) added.",
+      "timestamp": "2025-09-17T20:26:55.418Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1758140850651-sukl4",
+      "action": "PROJECT_UPDATE_SUCCESS",
+      "level": "INFO",
+      "message": "Project ID 1 updated. Fields: linkedOwnerEmail, clientName",
+      "timestamp": "2025-09-17T20:27:30.651Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760026017895-ldcdr",
+      "action": "USER_LOGIN_FAILURE",
+      "level": "WARNING",
+      "message": "Login attempt for non-existent email: ameed@eng.com",
+      "timestamp": "2025-10-09T16:06:57.911Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760026071582-lp4fa",
+      "action": "USER_REGISTRATION_SUCCESS",
+      "level": "INFO",
+      "message": "User ameed@eng.com registered. Role: ENGINEER, Status: ACTIVE.",
+      "timestamp": "2025-10-09T16:07:51.582Z",
+      "user": "user-1760026071539-4z5f4"
+    },
+    {
+      "id": "log-1760026078345-nfyc2",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: ameed@eng.com",
+      "timestamp": "2025-10-09T16:07:58.345Z",
+      "user": "user-1760026071539-4z5f4"
+    },
+    {
+      "id": "log-1760026449523-snp5w",
+      "action": "PROJECT_ADD_SUCCESS",
+      "level": "INFO",
+      "message": "Project \"فيلا النصر\" (ID: 2) added.",
+      "timestamp": "2025-10-09T16:14:09.523Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760027238948-ukgi3",
+      "action": "USER_REGISTRATION_SUCCESS",
+      "level": "INFO",
+      "message": "User mediaplus64@gmail.com registered. Role: OWNER, Status: ACTIVE.",
+      "timestamp": "2025-10-09T16:27:18.948Z",
+      "user": "user-1760027238943-3l3mm"
+    },
+    {
+      "id": "log-1760027244502-w76j9",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: mediaplus64@gmail.com",
+      "timestamp": "2025-10-09T16:27:24.502Z",
+      "user": "user-1760027238943-3l3mm"
+    },
+    {
+      "id": "log-1760027274350-qb6oa",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: ameed@eng.com",
+      "timestamp": "2025-10-09T16:27:54.350Z",
+      "user": "user-1760026071539-4z5f4"
+    },
+    {
+      "id": "log-1760027482055-4dqkm",
+      "action": "PROJECT_UPDATE_SUCCESS",
+      "level": "INFO",
+      "message": "Project ID 2 updated. Fields: linkedOwnerEmail, clientName",
+      "timestamp": "2025-10-09T16:31:22.055Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760028006168-gg7gz",
+      "action": "PROJECT_UPDATE_SUCCESS",
+      "level": "INFO",
+      "message": "Project ID 2 updated. Fields: timelineTasks",
+      "timestamp": "2025-10-09T16:40:06.168Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760028008393-znzxi",
+      "action": "PROJECT_UPDATE_SUCCESS",
+      "level": "INFO",
+      "message": "Project ID 2 updated. Fields: timelineTasks",
+      "timestamp": "2025-10-09T16:40:08.393Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760028088103-v3t53",
+      "action": "PROJECT_UPDATE_SUCCESS",
+      "level": "INFO",
+      "message": "Project ID 2 updated. Fields: timelineTasks",
+      "timestamp": "2025-10-09T16:41:28.104Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760028478639-vpd32",
+      "action": "PROJECT_UPDATE_SUCCESS",
+      "level": "INFO",
+      "message": "Project ID 2 updated. Fields: timelineTasks",
+      "timestamp": "2025-10-09T16:47:58.639Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760028495487-pukad",
+      "action": "PROJECT_UPDATE_SUCCESS",
+      "level": "INFO",
+      "message": "Project ID 2 updated. Fields: timelineTasks",
+      "timestamp": "2025-10-09T16:48:15.487Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760028738658-m02di",
+      "action": "PROJECT_UPDATE_SUCCESS",
+      "level": "INFO",
+      "message": "Project ID 2 updated. Fields: timelineTasks",
+      "timestamp": "2025-10-09T16:52:18.658Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760028983622-bq221",
+      "action": "PROJECT_UPDATE_SUCCESS",
+      "level": "INFO",
+      "message": "Project ID 2 updated. Fields: timelineTasks",
+      "timestamp": "2025-10-09T16:56:23.622Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760029610639-ixokz",
+      "action": "COST_REPORT_ADD_SUCCESS",
+      "level": "INFO",
+      "message": "Cost report \"فيلا النصر\" (ID: cost-report-1760029610633-dx8if) added for project ID 2 by engineer م. عميد.",
+      "timestamp": "2025-10-09T17:06:50.639Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760029659198-b4hle",
+      "action": "COST_REPORT_ADD_SUCCESS",
+      "level": "INFO",
+      "message": "Cost report \"فيلا النصر\" (ID: cost-report-1760029659186-f7nq4) added for project ID 2 by engineer م. عميد.",
+      "timestamp": "2025-10-09T17:07:39.198Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760029693785-a6a0m",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: mediaplus64@gmail.com",
+      "timestamp": "2025-10-09T17:08:13.785Z",
+      "user": "user-1760027238943-3l3mm"
+    },
+    {
+      "id": "log-1760118667537-9ev29",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: mediaplus64@gmail.com",
+      "timestamp": "2025-10-10T17:51:07.537Z",
+      "user": "user-1760027238943-3l3mm"
+    },
+    {
+      "id": "log-1760120277070-fqd3g",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: ameed@eng.com",
+      "timestamp": "2025-10-10T18:17:57.070Z",
+      "user": "user-1760026071539-4z5f4"
+    },
+    {
+      "id": "log-1760120692779-urxcz",
+      "action": "COST_REPORT_ADD_SUCCESS",
+      "level": "INFO",
+      "message": "Cost report \"فيلا النصر\" (ID: cost-report-1760120692772-0dhca) added for project ID 2 by engineer م. عميد.",
+      "timestamp": "2025-10-10T18:24:52.779Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760122451796-lt86x",
+      "action": "COST_REPORT_ADD_SUCCESS",
+      "level": "INFO",
+      "message": "Cost report \"تكلفة الاعمدة\" (ID: cost-report-1760122451780-9z8u0) added for project ID 2 by engineer م. عميد.",
+      "timestamp": "2025-10-10T18:54:11.796Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760122534985-rgpl4",
+      "action": "PROJECT_UPDATE_SUCCESS",
+      "level": "INFO",
+      "message": "Project ID 2 updated. Fields: overallProgress, quantitySummary, status",
+      "timestamp": "2025-10-10T18:55:34.985Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1760123449196-1n0hc",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: ameed@eng.com",
+      "timestamp": "2025-10-10T19:10:49.196Z",
+      "user": "user-1760026071539-4z5f4"
+    }
+  ],
+  "notifications": [],
+  "settings": {
+    "siteName": "المحترف لحساب الكميات",
+    "defaultLanguage": "ar",
+    "maintenanceMode": false,
+    "maxUploadSizeMB": 25,
+    "emailNotificationsEnabled": true,
+    "lastId": 0
+  },
+  "costReports": [
+    {
+      "projectId": 2,
+      "reportName": "فيلا النصر",
+      "engineerId": "user-1760026071539-4z5f4",
+      "engineerName": "م. عميد",
+      "ownerId": "user-1760027238943-3l3mm",
+      "ownerName": "المالك عميد",
+      "items": [
+        {
+          "id": "1760029601152",
+          "name": "الطوب (طوب 10)",
+          "quantity": 500,
+          "unit": "قطعة",
+          "pricePerUnit_ILS": 1.5,
+          "totalCost_ILS": 750
+        }
+      ],
+      "totalCost_ILS": 750,
+      "id": "cost-report-1760029610633-dx8if",
+      "createdAt": "2025-10-09T17:06:50.633Z"
+    },
+    {
+      "projectId": 2,
+      "reportName": "فيلا النصر",
+      "engineerId": "user-1760026071539-4z5f4",
+      "engineerName": "م. عميد",
+      "ownerId": "user-1760027238943-3l3mm",
+      "ownerName": "المالك عميد",
+      "items": [
+        {
+          "id": "1760029601152",
+          "name": "الطوب (طوب 10)",
+          "quantity": 500,
+          "unit": "قطعة",
+          "pricePerUnit_ILS": 1.5,
+          "totalCost_ILS": 750
+        }
+      ],
+      "totalCost_ILS": 750,
+      "id": "cost-report-1760029659186-f7nq4",
+      "createdAt": "2025-10-09T17:07:39.186Z"
+    },
+    {
+      "projectId": 2,
+      "reportName": "فيلا النصر",
+      "engineerId": "user-1760026071539-4z5f4",
+      "engineerName": "م. عميد",
+      "ownerId": "user-1760027238943-3l3mm",
+      "ownerName": "المالك عميد",
+      "items": [
+        {
+          "id": "1760120661982",
+          "name": "الخرسانة (خرسانة جاهزة (رملية))",
+          "quantity": 100,
+          "unit": "م³",
+          "pricePerUnit_ILS": 350,
+          "totalCost_ILS": 35000
+        }
+      ],
+      "totalCost_ILS": 35000,
+      "id": "cost-report-1760120692772-0dhca",
+      "createdAt": "2025-10-10T18:24:52.772Z"
+    },
+    {
+      "projectId": 2,
+      "reportName": "تكلفة الاعمدة",
+      "engineerId": "",
+      "engineerName": "م. عميد",
+      "ownerId": "",
+      "ownerName": "المالك عميد",
+      "items": [],
+      "totalCost_ILS": 13,
+      "id": "cost-report-1760122451780-9z8u0",
+      "createdAt": "2025-10-10T18:54:11.780Z"
+    }
+  ]
+}
