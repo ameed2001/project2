@@ -74,10 +74,10 @@ model Project {
 }
 
 enum ProjectStatus {
-  مخطط_له
-  قيد_التنفيذ
-  مكتمل
-  مؤرشف
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
 }
 
 // Project Photos
@@ -100,7 +100,7 @@ model TimelineTask {
   startDate DateTime
   endDate   DateTime
   color     String   @default("#3b82f6")
-  status    TaskStatus @default(مخطط_له)
+  status    TaskStatus @default(PLANNED)
   progress  Int?
   projectId Int
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -109,9 +109,9 @@ model TimelineTask {
 }
 
 enum TaskStatus {
-  مخطط_له
-  قيد_التنفيذ
-  مكتمل
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
 }
 
 // Project Comments

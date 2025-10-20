@@ -362,6 +362,14 @@
       "message": "User logged in: ameed@eng.com",
       "timestamp": "2025-10-10T19:10:49.196Z",
       "user": "user-1760026071539-4z5f4"
+    },
+    {
+      "id": "log-1760211921316-jkwmy",
+      "action": "USER_LOGIN_FAILURE",
+      "level": "WARNING",
+      "message": "Login attempt for non-existent email: malik@gmail.com",
+      "timestamp": "2025-10-11T19:45:21.316Z",
+      "user": "System"
     }
   ],
   "notifications": [],
