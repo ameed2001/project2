@@ -344,28 +344,28 @@
       const currentCurrencySymbol = currencySymbols[currentCurrency];
       const totalCostText = document.getElementById('result').textContent;
 
-      const reportDetailsHTML = \`
+      const reportDetailsHTML = `
         <div style="text-align: right; margin-bottom: 1rem; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
           <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem;">تفاصيل المادة المحسوبة:</h3>
-          <p><strong>المادة:</strong> \${materialNameText}</p>
-          <p><strong>الكمية:</strong> \${quantityUsedText} \${unitUsedText}</p>
-          <p><strong>سعر الوحدة المدخل:</strong> \${pricePerUnitValue ? pricePerUnitValue.toFixed(2) : 'غير متوفر'} \${currentCurrencySymbol}</p>
+          <p><strong>المادة:</strong> ${materialNameText}</p>
+          <p><strong>الكمية:</strong> ${quantityUsedText} ${unitUsedText}</p>
+          <p><strong>سعر الوحدة المدخل:</strong> ${pricePerUnitValue ? pricePerUnitValue.toFixed(2) : 'غير متوفر'} ${currentCurrencySymbol}</p>
           <hr style="margin: 0.5rem 0;" />
-          <p style="font-size: 1.1rem; font-weight: bold;"><strong>التكلفة الإجمالية للمادة:</strong> \${totalCostText}</p>
+          <p style="font-size: 1.1rem; font-weight: bold;"><strong>التكلفة الإجمالية للمادة:</strong> ${totalCostText}</p>
         </div>
-      \`;
+      `;
       
       const originalContent = document.body.innerHTML;
       
-      document.body.innerHTML = \`
+      document.body.innerHTML = `
         <div class="p-6 font-Tajawal" dir="rtl" style="font-family: 'Tajawal', sans-serif;">
           <h2 class="text-2xl font-bold mb-4 text-center" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; text-align: center;">تقرير تكلفة مواد البناء</h2>
-          \${reportDetailsHTML}
+          ${reportDetailsHTML}
           <div class="mt-6 text-sm text-gray-500 text-center" style="margin-top: 1.5rem; font-size: 0.875rem; color: #6b7280; text-align: center;">
-            تم إنشاء التقرير في: \${new Date().toLocaleString('ar-EG')}
+            تم إنشاء التقرير في: ${new Date().toLocaleString('ar-EG')}
           </div>
         </div>
-      \`;
+      `;
       
       window.print();
       document.body.innerHTML = originalContent;
