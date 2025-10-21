@@ -118,6 +118,13 @@ export interface SystemSettingsDocument {
   maintenanceMode: boolean;
   maxUploadSizeMB: number;
   emailNotificationsEnabled: boolean;
+  loginAttemptsLimit: number;
+  passwordResetExpiry: number;
+  twoFactorAuth: boolean;
+  notificationEmail: string;
+  notificationFrequency: string;
+  allowedFileTypes: string[];
+  fileScanning: boolean;
 }
 
 // ---- DATABASE I/O HELPERS ----
@@ -214,6 +221,13 @@ export async function getSystemSettings(): Promise<SystemSettingsDocument> {
     maintenanceMode: false,
     maxUploadSizeMB: 25,
     emailNotificationsEnabled: true,
+    loginAttemptsLimit: 5,
+    passwordResetExpiry: 24,
+    twoFactorAuth: false,
+    notificationEmail: '',
+    notificationFrequency: 'daily',
+    allowedFileTypes: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
+    fileScanning: true,
   };
 }
 
@@ -314,7 +328,7 @@ export async function loginUser(email: string, password_input: string): Promise<
         'DELETED': { message: "هذا الحساب تم حذفه.", errorType: 'account_deleted' },
         'ACTIVE': { message: '', errorType: undefined }
       };
-      const errorInfo = errorMap[userDoc.status] || { message: "الحساب غير نشط.", errorType: 'other' };
+      const errorInfo = errorMap[userDoc.status as keyof typeof errorMap] || { message: "الحساب غير نشط.", errorType: 'other' };
       await logAction('USER_LOGIN_FAILURE', 'WARNING', `Login attempt for inactive account (${userDoc.status}): ${email}`, userDoc.id);
       return { success: false, ...errorInfo };
     }
@@ -586,7 +600,7 @@ export async function getCostReportsForProject(projectId: string): Promise<CostR
         return [];
     }
     const reports = db.costReports.filter((report: CostReport) => report.projectId?.toString() === projectId);
-    return reports.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return reports.sort((a: CostReport, b: CostReport) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 export async function deleteAllLogs(adminUserId: string): Promise<{ success: boolean; message?: string }> {

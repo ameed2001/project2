@@ -26,7 +26,7 @@ const cardVariants = {
     y: 0, 
     transition: { 
       duration: 0.5, 
-      ease: "easeOut" 
+      ease: [0.4, 0, 0.2, 1] as const
     } 
   },
   hover: { 
@@ -34,7 +34,7 @@ const cardVariants = {
     boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
     transition: {
       duration: 0.3,
-      ease: "easeInOut"
+      ease: [0.4, 0, 0.2, 1] as const
     }
   }
 };

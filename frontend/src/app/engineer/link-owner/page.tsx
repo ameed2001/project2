@@ -26,9 +26,9 @@ export default function LinkOwnerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingData, setIsFetchingData] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [owners, setOwners] = useState<UserDocument[]>([]);
+  const [owners, setOwners] = useState<Omit<UserDocument, 'password_hash'>[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [selectedOwner, setSelectedOwner] = useState<UserDocument | null>(null);
+  const [selectedOwner, setSelectedOwner] = useState<Omit<UserDocument, 'password_hash'> | null>(null);
 
   const { control, handleSubmit, formState: { errors }, reset, setValue } = useForm<LinkOwnerFormValues>({
     resolver: zodResolver(linkOwnerSchema),

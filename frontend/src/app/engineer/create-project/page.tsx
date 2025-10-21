@@ -83,7 +83,7 @@ export default function CreateProjectPage() {
     const projectDataForDb: Omit<Project, 'id' | 'overallProgress' | 'photos' | 'timelineTasks' | 'comments' | 'createdAt'> = {
         name: data.projectName,
         location: data.location,
-        description: data.description,
+        description: data.description || '',
         startDate: data.startDate,
         endDate: data.endDate,
         status: data.status as ProjectStatusType,
