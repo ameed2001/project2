@@ -123,6 +123,24 @@
       "comments": [],
       "createdAt": "2025-10-09T16:14:09.472Z",
       "linkedOwnerEmail": "mediaplus64@gmail.com"
+    },
+    {
+      "id": 3,
+      "name": "xfdsf",
+      "location": "fdsf",
+      "description": "fdsfsdgdf cv d vc",
+      "startDate": "2025-10-01",
+      "endDate": "2025-10-22",
+      "status": "قيد التنفيذ",
+      "engineer": "anan kayed",
+      "clientName": "fdsf",
+      "budget": 1542035020,
+      "overallProgress": 0,
+      "quantitySummary": "",
+      "photos": [],
+      "timelineTasks": [],
+      "comments": [],
+      "createdAt": "2025-10-25T18:50:26.262Z"
     }
   ],
   "logs": [
@@ -405,6 +423,22 @@
       "message": "User logged in: anan.kayed@gmail.com",
       "timestamp": "2025-10-25T18:27:54.783Z",
       "user": "user-1761416866724-7dmj5"
+    },
+    {
+      "id": "log-1761418189193-ld2ak",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: anan.kayed@gmail.com",
+      "timestamp": "2025-10-25T18:49:49.193Z",
+      "user": "user-1761416866724-7dmj5"
+    },
+    {
+      "id": "log-1761418226265-juz26",
+      "action": "PROJECT_ADD_SUCCESS",
+      "level": "INFO",
+      "message": "Project \"xfdsf\" (ID: 3) added.",
+      "timestamp": "2025-10-25T18:50:26.265Z",
+      "user": "System"
     }
   ],
   "notifications": [],
