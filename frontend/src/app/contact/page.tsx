@@ -98,7 +98,8 @@ const contactFormSchemaClient = z.object({
   messageType: z.string().min(1, { message: "يرجى اختيار نوع الرسالة." }),
   subject: z.string().min(5, { message: "الموضوع مطلوب (5 أحرف على الأقل)." }),
   message: z.string().min(10, { message: "الرسالة مطلوبة (10 أحرف على الأقل)." }),
-  priority: z.enum(["low", "medium", "high"], { required_error: "يرجى اختيار أولوية الرسالة." })
+  priority: z.enum(["low", "medium", "high"], { required_error: "يرجى اختيار أولوية الرسالة." }),
+  accountType: z.string().optional()
 });
 
 // استنتاج النوع من مخطط Zod
@@ -214,7 +215,7 @@ export default function ContactPageEnhanced() {
       toast({
         title: "✅ تم إرسال رسالتك بنجاح!",
         description: `أولوية الرسالة: ${priorityText} - سنتواصل معك في أقرب وقت ممكن 🚀`,
-        variant: "success"
+        variant: "default"
       });
       
       form.reset(); // مسح حقول النموذج بعد الإرسال الناجح
@@ -262,7 +263,7 @@ export default function ContactPageEnhanced() {
       y: 0,
       opacity: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         damping: 20,
         stiffness: 100
       }
@@ -665,7 +666,7 @@ export default function ContactPageEnhanced() {
                   >
                     <button
                       type="button"
-                      className="max-w-[320px] flex px-[1.4rem] py-[0.5rem] text-[0.875rem] leading-[1.25rem] font-bold text-center uppercase align-middle items-center rounded-2xl border border-solid border-[rgba(50,50,80,0.25)] gap-[0.75rem] text-white bg-[rgb(50,50,80)] cursor-pointer transition-all duration-[0.6s] ease-[ease] no-underline hover:scale-[1.02] hover:bg-[rgb(90,90,120)] hover:shadow-[0_2px_4px_rgba(90,90,120,0.1)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,0,40,0.3)] active:scale-[0.98] active:opacity-80 md:max-w-full"
+                      className="max-w-[320px] flex px-[1.4rem] py-[0.5rem] text-[0.875rem] leading-[1.25rem] font-bold text-center uppercase align-middle items-center rounded-2xl border border-solid border-[rgba(50,50,80,0.25)] gap-[0.75rem] text-white bg-[rgb(50,50,80)] cursor-pointer transition-all duration-600 ease-in-out no-underline hover:scale-[1.02] hover:bg-[rgb(90,90,120)] hover:shadow-[0_2px_4px_rgba(90,90,120,0.1)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,0,40,0.3)] active:scale-[0.98] active:opacity-80 md:max-w-full"
                       style={{ minWidth: '220px' }}
                     >
                       <svg className="h-6 w-6 fill-white mr-[0.5rem]" viewBox="0 0 256 262" preserveAspectRatio="xMidYMid" xmlns="http://www.w3.org/2000/svg">

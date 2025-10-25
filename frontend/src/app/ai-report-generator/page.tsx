@@ -11,7 +11,31 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { generateProjectReport, type GenerateProjectReportInput } from '@/ai/flows/generate-project-report';
+// import { generateProjectReport, type GenerateProjectReportInput } from '@/ai/flows/generate-project-report';
+
+// Mock types and function for now
+type GenerateProjectReportInput = {
+  projectData: string;
+  instructions: string;
+  audience: string;
+};
+
+const generateProjectReport = async (input: GenerateProjectReportInput) => {
+  // Mock implementation - returns a simple text report
+  const mockReport = `تقرير المشروع
+البيانات: ${input.projectData}
+التعليمات: ${input.instructions}
+الجمهور: ${input.audience}
+
+هذا تقرير تجريبي. يرجى تفعيل ميزة الذكاء الاصطناعي لإنشاء تقارير حقيقية.`;
+  
+  // Convert to base64
+  const base64Report = btoa(unescape(encodeURIComponent(mockReport)));
+  
+  return {
+    report: base64Report
+  };
+};
 import { Loader2 } from 'lucide-react';
 
 const reportSchema = z.object({

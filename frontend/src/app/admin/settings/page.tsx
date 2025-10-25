@@ -46,7 +46,7 @@ export default function AdminSettingsPage() {
     fetchSettings();
   }, [toast]);
 
-  const handleChange = (field: keyof SystemSettingsDocument, value: string | number | boolean) => {
+  const handleChange = (field: keyof SystemSettingsDocument, value: string | number | boolean | string[]) => {
     setSettings(prev => (prev ? { ...prev, [field]: value } : null));
   };
 
@@ -156,7 +156,7 @@ export default function AdminSettingsPage() {
               <TabsContent value="general" className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="siteName" className="block mb-2 font-medium text-gray-700 flex items-center gap-2">
+                    <Label htmlFor="siteName" className="block mb-2 font-medium text-gray-700 items-center gap-2">
                       <Globe className="w-4 h-4" />
                       اسم الموقع
                     </Label>
@@ -170,7 +170,7 @@ export default function AdminSettingsPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="defaultLanguage" className="block mb-2 font-medium text-gray-700 flex items-center gap-2">
+                    <Label htmlFor="defaultLanguage" className="block mb-2 font-medium text-gray-700 items-center gap-2">
                       <Globe className="w-4 h-4" />
                       اللغة الافتراضية
                     </Label>

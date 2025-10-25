@@ -62,7 +62,7 @@ export default function AboutPage() {
 
             <section className="mb-8">
               <div className="text-center mb-8">
-                <h3 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-app-red to-app-gold border-t-4 border-gradient-to-r from-app-red to-app-gold pt-8">
+                <h3 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r border-t-4 border-gradient-to-r from-app-red to-app-gold pt-8">
                   ماذا تقدم المنصة؟
                 </h3>
               </div>

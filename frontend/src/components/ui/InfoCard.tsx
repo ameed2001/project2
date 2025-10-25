@@ -85,16 +85,67 @@ const InfoCard = (props: InfoCardProps) => {
   }
 
   // Fallback for non-flipping cards
-  const Tag = isInteractive && href ? Link : 'div';
-  const interactiveProps = isInteractive && href ? { href } : { onClick };
+  if (isInteractive && href) {
+    return (
+      <Link
+        href={href}
+        className={cn(
+          "bg-card text-card-foreground p-6 sm:p-8 flex flex-col justify-center items-center text-center border border-border shadow-lg rounded-xl",
+          "transition-all duration-300 ease-in-out",
+          "hover:shadow-xl hover:-translate-y-2 cursor-pointer",
+          cardHeightClass,
+          className,
+          frontCustomClass // Apply front class even to non-flipping cards
+        )}
+        data-ai-hint={dataAiHint}
+      >
+        {icon && (
+          <div className={cn(
+            "mx-auto flex h-16 w-16 items-center justify-center rounded-full mb-5 sm:mb-6 shrink-0",
+            iconWrapperClass
+          )}>
+             {icon}
+          </div>
+        )}
+        <h3 className="text-xl sm:text-2xl font-bold text-app-red mb-2">{title}</h3>
+        {description && <p className="text-sm sm:text-base text-gray-600 flex-grow">{description}</p>}
+      </Link>
+    );
+  }
+
+  if (isInteractive && onClick) {
+    return (
+      <div
+        onClick={onClick}
+        className={cn(
+          "bg-card text-card-foreground p-6 sm:p-8 flex flex-col justify-center items-center text-center border border-border shadow-lg rounded-xl",
+          "transition-all duration-300 ease-in-out",
+          "hover:shadow-xl hover:-translate-y-2 cursor-pointer",
+          cardHeightClass,
+          className,
+          frontCustomClass // Apply front class even to non-flipping cards
+        )}
+        data-ai-hint={dataAiHint}
+      >
+        {icon && (
+          <div className={cn(
+            "mx-auto flex h-16 w-16 items-center justify-center rounded-full mb-5 sm:mb-6 shrink-0",
+            iconWrapperClass
+          )}>
+             {icon}
+          </div>
+        )}
+        <h3 className="text-xl sm:text-2xl font-bold text-app-red mb-2">{title}</h3>
+        {description && <p className="text-sm sm:text-base text-gray-600 flex-grow">{description}</p>}
+      </div>
+    );
+  }
 
   return (
-    <Tag
-      {...interactiveProps}
+    <div
       className={cn(
         "bg-card text-card-foreground p-6 sm:p-8 flex flex-col justify-center items-center text-center border border-border shadow-lg rounded-xl",
         "transition-all duration-300 ease-in-out",
-        isInteractive && "hover:shadow-xl hover:-translate-y-2 cursor-pointer",
         cardHeightClass,
         className,
         frontCustomClass // Apply front class even to non-flipping cards
@@ -111,7 +162,7 @@ const InfoCard = (props: InfoCardProps) => {
       )}
       <h3 className="text-xl sm:text-2xl font-bold text-app-red mb-2">{title}</h3>
       {description && <p className="text-sm sm:text-base text-gray-600 flex-grow">{description}</p>}
-    </Tag>
+    </div>
   );
 };
 

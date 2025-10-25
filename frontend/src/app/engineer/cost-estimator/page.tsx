@@ -4,9 +4,17 @@ import { useState, useEffect } from 'react';
 import CostEstimatorForm from '@/components/CostEstimatorForm';
 import { motion } from 'framer-motion';
 
+interface CostEstimate {
+  id: number;
+  projectName: string;
+  totalCost: number;
+  date: string;
+  [key: string]: any;
+}
+
 export default function EngineerCostEstimatorPage() {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [savedEstimates, setSavedEstimates] = useState([]);
+  const [savedEstimates, setSavedEstimates] = useState<CostEstimate[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
@@ -22,16 +30,16 @@ export default function EngineerCostEstimatorPage() {
   const toggleDarkMode = () => {
     const newDarkMode = !isDarkMode;
     setIsDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', newDarkMode);
+    localStorage.setItem('darkMode', newDarkMode.toString());
   };
 
-  const saveEstimate = (estimate) => {
+  const saveEstimate = (estimate: any) => {
     const newEstimates = [...savedEstimates, { ...estimate, id: Date.now(), date: new Date().toISOString() }];
     setSavedEstimates(newEstimates);
     localStorage.setItem('costEstimates', JSON.stringify(newEstimates));
   };
 
-  const deleteEstimate = (id) => {
+  const deleteEstimate = (id: number) => {
     const newEstimates = savedEstimates.filter(e => e.id !== id);
     setSavedEstimates(newEstimates);
     localStorage.setItem('costEstimates', JSON.stringify(newEstimates));
@@ -83,7 +91,7 @@ export default function EngineerCostEstimatorPage() {
                   <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">تقدير تكلفة المشروع</h2>
                   <p className="text-gray-600 dark:text-gray-400">أدخل تفاصيل المشروع للحصول على تقدير دقيق للتكلفة</p>
                 </div>
-                <CostEstimatorForm onSaveEstimate={saveEstimate} />
+                <CostEstimatorForm />
               </div>
             </motion.div>
 

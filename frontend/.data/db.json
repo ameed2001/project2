@@ -54,6 +54,17 @@
       "profileImage": "https://placehold.co/100x100.png?text=ال",
       "createdAt": "2025-10-09T16:27:18.943Z",
       "updatedAt": "2025-10-09T16:27:18.943Z"
+    },
+    {
+      "id": "user-1761416866724-7dmj5",
+      "name": "anan kayed",
+      "email": "anan.kayed@gmail.com",
+      "password_hash": "$2a$10$xmaCOHyxsQSThqbAwKpYvuVki/sEgXAKt9Op80s0VjUg2Ix8ZNF4i",
+      "role": "ENGINEER",
+      "status": "ACTIVE",
+      "profileImage": "https://placehold.co/100x100.png?text=AN",
+      "createdAt": "2025-10-25T18:27:46.724Z",
+      "updatedAt": "2025-10-25T18:27:46.724Z"
     }
   ],
   "projects": [
@@ -370,6 +381,30 @@
       "message": "Login attempt for non-existent email: malik@gmail.com",
       "timestamp": "2025-10-11T19:45:21.316Z",
       "user": "System"
+    },
+    {
+      "id": "log-1761416847510-dzkxj",
+      "action": "USER_LOGIN_FAILURE",
+      "level": "WARNING",
+      "message": "Login attempt for non-existent email: anan.kayed@gmail.com",
+      "timestamp": "2025-10-25T18:27:27.510Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1761416866726-o3ifs",
+      "action": "USER_REGISTRATION_SUCCESS",
+      "level": "INFO",
+      "message": "User anan.kayed@gmail.com registered. Role: ENGINEER, Status: ACTIVE.",
+      "timestamp": "2025-10-25T18:27:46.726Z",
+      "user": "user-1761416866724-7dmj5"
+    },
+    {
+      "id": "log-1761416874783-axry5",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: anan.kayed@gmail.com",
+      "timestamp": "2025-10-25T18:27:54.783Z",
+      "user": "user-1761416866724-7dmj5"
     }
   ],
   "notifications": [],

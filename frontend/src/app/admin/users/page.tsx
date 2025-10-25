@@ -62,7 +62,7 @@ import EditUserDialog from "@/components/admin/users/EditUserDialog";
 export default function AdminUsersPage() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [users, setUsersState] = useState<User[]>([]);
+  const [users, setUsersState] = useState<Omit<User, 'password_hash'>[]>([]);
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isFetching, setIsFetching] = useState(true);
@@ -74,9 +74,9 @@ export default function AdminUsersPage() {
     name: string;
   } | null>(null);
   const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
-  const [selectedUserForEdit, setSelectedUserForEdit] = useState<User | null>(null);
+  const [selectedUserForEdit, setSelectedUserForEdit] = useState<Omit<User, 'password_hash'> | null>(null);
 
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState<Omit<User, 'password_hash'> | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteStep, setDeleteStep] = useState<"confirm" | "loading" | "success">(
     "confirm"
@@ -134,7 +134,7 @@ export default function AdminUsersPage() {
     );
   }, [users, searchTerm, roleFilter, statusFilter]);
 
-  const handleOpenDeleteDialog = (user: User) => {
+  const handleOpenDeleteDialog = (user: Omit<User, 'password_hash'>) => {
     setUserToDelete(user);
     setDeleteStep("confirm");
     setIsDeleteDialogOpen(true);
@@ -162,7 +162,7 @@ export default function AdminUsersPage() {
     setIsResetPasswordDialogOpen(true);
   };
 
-  const handleOpenEditUserDialog = (user: User) => {
+  const handleOpenEditUserDialog = (user: Omit<User, 'password_hash'>) => {
     setSelectedUserForEdit(user);
     setIsEditUserDialogOpen(true);
   };
