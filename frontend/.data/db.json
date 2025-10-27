@@ -439,6 +439,30 @@
       "message": "Project \"xfdsf\" (ID: 3) added.",
       "timestamp": "2025-10-25T18:50:26.265Z",
       "user": "System"
+    },
+    {
+      "id": "log-1761593173978-e3eq5",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: anan.kayed@gmail.com",
+      "timestamp": "2025-10-27T19:26:13.978Z",
+      "user": "user-1761416866724-7dmj5"
+    },
+    {
+      "id": "log-1761593234353-t67im",
+      "action": "USER_REGISTRATION_FAILURE",
+      "level": "WARNING",
+      "message": "Registration attempt for existing email: anan.kayed@gmail.com",
+      "timestamp": "2025-10-27T19:27:14.353Z",
+      "user": "System"
+    },
+    {
+      "id": "log-1761593283557-02xpw",
+      "action": "USER_LOGIN_SUCCESS",
+      "level": "INFO",
+      "message": "User logged in: anan.kayed@gmail.com",
+      "timestamp": "2025-10-27T19:28:03.557Z",
+      "user": "user-1761416866724-7dmj5"
     }
   ],
   "notifications": [],
