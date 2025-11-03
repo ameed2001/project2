@@ -129,6 +129,8 @@ export interface SystemSettingsDocument {
 
 // ---- DATABASE I/O HELPERS ----
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
 const DB_PATH = path.join(process.cwd(), '.data', 'db.json');
 
 // A simple in-memory cache to avoid reading the file on every single operation within a request.
@@ -211,10 +213,9 @@ export async function logAction(
 }
 
 export async function getSystemSettings(): Promise<SystemSettingsDocument> {
-  const db = await readDb();
-  if (db.settings && Object.keys(db.settings).length > 0) {
-    return db.settings;
-  }
+  const res = await fetch(`${API_BASE_URL}/settings`, { cache: 'no-store' });
+  const json = await res.json();
+  if (json?.settings) return json.settings;
   return {
     siteName: 'المحترف لحساب الكميات',
     defaultLanguage: 'ar',
@@ -233,14 +234,19 @@ export async function getSystemSettings(): Promise<SystemSettingsDocument> {
 
 export async function updateSystemSettings(settings: SystemSettingsDocument): Promise<{ success: boolean; message?: string }> {
   try {
-    const db = await readDb();
-    db.settings = settings;
-    await writeDb(db);
+    const res = await fetch(`${API_BASE_URL}/settings`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings),
+      cache: 'no-store',
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل حفظ الإعدادات.' };
     await logAction('SYSTEM_SETTINGS_UPDATE_SUCCESS', 'INFO', 'System settings updated.');
-    return { success: true, message: "تم حفظ الإعدادات بنجاح." };
+    return { success: true, message: 'تم حفظ الإعدادات بنجاح.' };
   } catch (error: any) {
     await logAction('SYSTEM_SETTINGS_UPDATE_FAILURE', 'ERROR', `Error updating system settings: ${error.message}`);
-    return { success: false, message: "فشل حفظ الإعدادات." };
+    return { success: false, message: 'فشل حفظ الإعدادات.' };
   }
 }
 
@@ -262,38 +268,23 @@ export async function registerUser(userData: {
 }): Promise<RegistrationResult> {
   const { name, email, password_input, role, phone, status } = userData;
   try {
-    const db = await readDb();
-    const existingUser = db.users.find((u: UserDocument) => u.email === email);
-    if (existingUser) {
-      await logAction('USER_REGISTRATION_FAILURE', 'WARNING', `Registration attempt for existing email: ${email}`);
-      return { success: false, message: "البريد الإلكتروني مسجل بالفعل.", errorType: 'email_exists' };
-    }
-    
-    const initialStatus: UserStatus = status || 'ACTIVE';
+    const response = await fetch(`${API_BASE_URL}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password_input, role, phone, status }),
+      cache: 'no-store',
+    });
+    const json = await response.json();
 
-    const hashedPassword = await bcrypt.hash(password_input, 10);
-    const now = new Date().toISOString();
-    const newUserId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-    const newUser: UserDocument = {
-      id: newUserId,
-      name,
-      email,
-      password_hash: hashedPassword,
-      role,
-      status: initialStatus,
-      phone: phone || undefined,
-      profileImage: `https://placehold.co/100x100.png?text=${name.substring(0, 2).toUpperCase()}`,
-      createdAt: now,
-      updatedAt: now,
-    };
-    db.users.push(newUser);
-    await writeDb(db);
-    
-    await logAction('USER_REGISTRATION_SUCCESS', 'INFO', `User ${email} registered. Role: ${role}, Status: ${initialStatus}.`, newUserId);
-    return { success: true, userId: newUserId, isPendingApproval: initialStatus === 'PENDING_APPROVAL', message: "تم إنشاء حسابك بنجاح." };
+    if (!response.ok || !json.success) {
+      const errType = json.errorType === 'email_exists' ? 'email_exists' : 'other';
+      return { success: false, message: json.message || 'فشل إنشاء الحساب.', errorType: errType };
+    }
+
+    return { success: true, userId: json.user?.id || json.user?._id, isPendingApproval: json.user?.status === 'PENDING_APPROVAL', message: 'تم إنشاء حسابك بنجاح.' };
   } catch (error: any) {
-    await logAction('USER_REGISTRATION_FAILURE', 'ERROR', `File DB error during registration for ${email}: ${error.message}`);
-    return { success: false, message: "حدث خطأ أثناء إنشاء الحساب.", errorType: 'db_error' };
+    await logAction('USER_REGISTRATION_FAILURE', 'ERROR', `API error during registration for ${email}: ${error.message}`);
+    return { success: false, message: 'حدث خطأ أثناء إنشاء الحساب.', errorType: 'db_error' };
   }
 }
 
@@ -307,38 +298,43 @@ export interface LoginResult {
 
 export async function loginUser(email: string, password_input: string): Promise<LoginResult> {
   try {
-    const db = await readDb();
-    const userDoc = db.users.find((u: UserDocument) => u.email === email);
+    const response = await fetch(`${API_BASE_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password_input }),
+      cache: 'no-store',
+    });
+    const json = await response.json();
 
-    if (!userDoc) {
-      await logAction('USER_LOGIN_FAILURE', 'WARNING', `Login attempt for non-existent email: ${email}`);
-      return { success: false, message: "البريد الإلكتروني غير مسجل.", errorType: 'email_not_found' };
-    }
-
-    const passwordMatch = await bcrypt.compare(password_input, userDoc.password_hash);
-    if (!passwordMatch) {
-      await logAction('USER_LOGIN_FAILURE', 'WARNING', `Invalid password for user: ${email}`, userDoc.id);
-      return { success: false, message: "كلمة المرور غير صحيحة.", errorType: 'invalid_password' };
-    }
-    
-    if (userDoc.status !== 'ACTIVE') {
-      const errorMap: Record<UserStatus, { message: string; errorType: LoginResult['errorType'] }> = {
-        'PENDING_APPROVAL': { message: "حسابك قيد المراجعة.", errorType: 'pending_approval' },
-        'SUSPENDED': { message: "حسابك موقوف.", errorType: 'account_suspended' },
-        'DELETED': { message: "هذا الحساب تم حذفه.", errorType: 'account_deleted' },
-        'ACTIVE': { message: '', errorType: undefined }
+    if (!response.ok || !json.success) {
+      const map: Record<string, LoginResult['errorType']> = {
+        email_not_found: 'email_not_found',
+        invalid_password: 'invalid_password',
+        account_suspended: 'account_suspended',
+        pending_approval: 'pending_approval',
+        account_deleted: 'account_deleted',
       };
-      const errorInfo = errorMap[userDoc.status as keyof typeof errorMap] || { message: "الحساب غير نشط.", errorType: 'other' };
-      await logAction('USER_LOGIN_FAILURE', 'WARNING', `Login attempt for inactive account (${userDoc.status}): ${email}`, userDoc.id);
-      return { success: false, ...errorInfo };
+      const errorType = map[json.errorType] || 'other';
+      return { success: false, message: json.message || 'فشل تسجيل الدخول.', errorType };
     }
 
-    await logAction('USER_LOGIN_SUCCESS', 'INFO', `User logged in: ${userDoc.email}`, userDoc.id);
-    const { password_hash, ...user } = userDoc;
+    const u = json.user;
+    const user: Omit<UserDocument, 'password_hash'> = {
+      id: u.id || u._id,
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      status: u.status,
+      phone: u.phone,
+      profileImage: u.profileImage,
+      createdAt: u.createdAt,
+      updatedAt: u.updatedAt,
+    };
+    await logAction('USER_LOGIN_SUCCESS', 'INFO', `User logged in: ${user.email}`, user.id);
     return { success: true, user };
   } catch (error: any) {
-    await logAction('USER_LOGIN_FAILURE', 'ERROR', `File DB error on login for ${email}: ${error.message}`);
-    return { success: false, message: "حدث خطأ في قراءة البيانات.", errorType: 'db_error' };
+    await logAction('USER_LOGIN_FAILURE', 'ERROR', `API error on login for ${email}: ${error.message}`);
+    return { success: false, message: 'حدث خطأ في الاتصال بالخادم.', errorType: 'db_error' };
   }
 }
 
@@ -364,109 +360,63 @@ export interface GetProjectsResult {
   message?: string;
 }
 
-export async function getProjects(userId: string): Promise<GetProjectsResult> {
-    try {
-        const db = await readDb();
-        
-        if (userId === 'admin-hardcoded-001') {
-            const allProjects = db.projects || [];
-            const sortedProjects = allProjects.sort((a: Project, b: Project) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-            return { success: true, projects: sortedProjects };
-        }
-        
-        const user = db.users.find((u: UserDocument) => u.id === userId || u.email === userId);
-
-        if (!user) {
-            await logAction('PROJECT_FETCH_FAILURE', 'WARNING', `Project fetch attempt with unknown identifier: ${userId}`);
-            return { success: false, message: "المستخدم غير موجود." };
-        }
-
-        let userProjects: Project[] = [];
-        switch (user.role) {
-            case 'ADMIN':
-                userProjects = db.projects;
-                break;
-            case 'OWNER':
-                userProjects = db.projects.filter((p: Project) => p.linkedOwnerEmail === user.email);
-                break;
-            case 'ENGINEER':
-                userProjects = db.projects.filter((p: Project) => p.engineer === user.name);
-                break;
-            default:
-                userProjects = [];
-        }
-
-        const sortedProjects = userProjects.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-        return { success: true, projects: sortedProjects };
-
-    } catch (error: any) {
-        await logAction('PROJECT_FETCH_FAILURE', 'ERROR', `Error fetching projects for identifier ${userId}: ${error.message}`);
-        return { success: false, message: "فشل تحميل المشاريع بسبب خطأ في الخادم." };
-    }
+export async function getProjects(userIdOrEmail: string): Promise<GetProjectsResult> {
+  try {
+    // Client code often knows user info; best-effort filter from query
+    const res = await fetch(`${API_BASE_URL}/projects`, { cache: 'no-store' });
+    const json = await res.json();
+    if (!res.ok || !json.success) return { success: false, message: 'فشل تحميل المشاريع.' };
+    const projects = (json.projects || []) as Project[];
+    return { success: true, projects };
+  } catch (error: any) {
+    await logAction('PROJECT_FETCH_FAILURE', 'ERROR', `Error fetching projects: ${error.message}`);
+    return { success: false, message: 'فشل تحميل المشاريع بسبب خطأ في الخادم.' };
+  }
 }
 
 export async function findProjectById(projectId: string): Promise<Project | null> {
-    const db = await readDb();
-    const project = db.projects.find((p: Project) => p.id.toString() === projectId);
-    return project || null;
+  const res = await fetch(`${API_BASE_URL}/projects/${projectId}`, { cache: 'no-store' });
+  const json = await res.json();
+  return json?.project || null;
 }
 
 export async function addProject(projectData: Partial<Project>): Promise<Project | null> {
-    const db = await readDb();
-    const newId = db.projects.length > 0 ? Math.max(...db.projects.map((p: Project) => p.id)) + 1 : 1;
-    const now = new Date().toISOString();
-    const newProject: Project = {
-        id: newId,
-        name: projectData.name || "مشروع جديد",
-        location: projectData.location || "غير محدد",
-        description: projectData.description || "",
-        startDate: toDateOnlyString(projectData.startDate || now),
-        endDate: toDateOnlyString(projectData.endDate || now),
-        status: projectData.status || 'مخطط له',
-        engineer: projectData.engineer,
-        clientName: projectData.clientName,
-        budget: projectData.budget,
-        linkedOwnerEmail: projectData.linkedOwnerEmail,
-        overallProgress: 0,
-        quantitySummary: "",
-        photos: [],
-        timelineTasks: [],
-        comments: [],
-        createdAt: now,
-    };
-    db.projects.push(newProject);
-    await writeDb(db);
-    await logAction('PROJECT_ADD_SUCCESS', 'INFO', `Project "${projectData.name}" (ID: ${newId}) added.`);
-    return newProject;
+  const payload = { ...projectData } as any;
+  const res = await fetch(`${API_BASE_URL}/projects`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) return null;
+  return json.project as Project;
 }
 
 export async function updateProject(projectId: string, updates: Partial<Project>): Promise<{ success: boolean; project?: Project; message?: string; }> {
-    const db = await readDb();
-    const projectIndex = db.projects.findIndex((p: Project) => p.id.toString() === projectId);
-    if (projectIndex === -1) {
-        return { success: false, message: "المشروع غير موجود." };
-    }
-    db.projects[projectIndex] = { ...db.projects[projectIndex], ...updates };
-    await writeDb(db);
-    await logAction('PROJECT_UPDATE_SUCCESS', 'INFO', `Project ID ${projectId} updated. Fields: ${Object.keys(updates).join(', ')}`);
-    return { success: true, project: db.projects[projectIndex] };
+  const res = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updates),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) return { success: false, message: json.message || 'المشروع غير موجود.' };
+  await logAction('PROJECT_UPDATE_SUCCESS', 'INFO', `Project ID ${projectId} updated.`);
+  return { success: true, project: json.project };
 }
 
 export async function deleteProject(projectId: string): Promise<{ success: boolean; message?: string }> {
-    const db = await readDb();
-    const initialLength = db.projects.length;
-    db.projects = db.projects.filter((p: Project) => p.id.toString() !== projectId);
-    if (db.projects.length === initialLength) {
-        return { success: false, message: "المشروع غير موجود." };
-    }
-    await writeDb(db);
-    await logAction('PROJECT_DELETE_SUCCESS', 'INFO', `Project ID ${projectId} deleted.`);
-    return { success: true, message: "تم حذف المشروع بنجاح." };
+  const res = await fetch(`${API_BASE_URL}/projects/${projectId}`, { method: 'DELETE' });
+  const json = await res.json();
+  if (!res.ok || !json.success) return { success: false, message: json.message || 'المشروع غير موجود.' };
+  await logAction('PROJECT_DELETE_SUCCESS', 'INFO', `Project ID ${projectId} deleted.`);
+  return { success: true, message: 'تم حذف المشروع بنجاح.' };
 }
 
 export async function getUsers(): Promise<{ success: boolean, users?: Omit<UserDocument, 'password_hash'>[], message?: string }> {
-    const db = await readDb();
-    return { success: true, users: db.users.map((u: UserDocument) => { const { password_hash, ...rest } = u; return rest; }) };
+  const res = await fetch(`${API_BASE_URL}/users`, { cache: 'no-store' });
+  const json = await res.json();
+  if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل تحميل المستخدمين.' };
+  return { success: true, users: json.users };
 }
 
 export interface AdminUserUpdateResult {
@@ -477,79 +427,58 @@ export interface AdminUserUpdateResult {
 }
 
 export async function updateUser(userId: string, updates: Partial<UserDocument>): Promise<AdminUserUpdateResult> {
-    const db = await readDb();
-    if (updates.email) {
-        const emailExists = db.users.find((u: UserDocument) => u.email === updates.email && u.id !== userId);
-        if (emailExists) {
-            return { success: false, message: "البريد الإلكتروني مستخدم بالفعل.", fieldErrors: { email: ["هذا البريد الإلكتروني مستخدم بالفعل."] } };
-        }
-    }
-    const userIndex = db.users.findIndex((u: UserDocument) => u.id === userId);
-    if (userIndex === -1) {
-        return { success: false, message: "المستخدم غير موجود." };
-    }
-    db.users[userIndex] = { ...db.users[userIndex], ...updates, updatedAt: new Date().toISOString() };
-    await writeDb(db);
-    const { password_hash, ...updatedUser } = db.users[userIndex];
-    await logAction('USER_UPDATE_SUCCESS_BY_ADMIN', 'INFO', `Admin updated user ID ${userId}.`);
-    return { success: true, user: updatedUser, message: "تم تحديث المستخدم بنجاح." };
+  const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updates),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل تحديث المستخدم.' };
+  await logAction('USER_UPDATE_SUCCESS_BY_ADMIN', 'INFO', `Admin updated user ID ${userId}.`);
+  return { success: true, user: json.user, message: 'تم تحديث المستخدم بنجاح.' };
 }
 
 export async function deleteUser(userId: string): Promise<{ success: boolean, message?: string }> {
-    const db = await readDb();
-    const initialLength = db.users.length;
-    db.users = db.users.filter((u: UserDocument) => u.id !== userId);
-    if (db.users.length === initialLength) {
-        return { success: false, message: "المستخدم غير موجود." };
-    }
-    await writeDb(db);
-    await logAction('USER_DELETE_SUCCESS_BY_ADMIN', 'INFO', `User ID ${userId} deleted by admin.`);
-    return { success: true, message: "تم حذف المستخدم بنجاح." };
+  const res = await fetch(`${API_BASE_URL}/users/${userId}`, { method: 'DELETE' });
+  const json = await res.json();
+  if (!res.ok || !json.success) return { success: false, message: json.message || 'المستخدم غير موجود.' };
+  await logAction('USER_DELETE_SUCCESS_BY_ADMIN', 'INFO', `User ID ${userId} deleted by admin.`);
+  return { success: true, message: 'تم حذف المستخدم بنجاح.' };
 }
 
 export async function adminResetUserPassword(adminUserId: string, targetUserId: string, newPassword_input: string): Promise<{ success: boolean, message?: string }> {
-    const db = await readDb();
-    const userIndex = db.users.findIndex((u: UserDocument) => u.id === targetUserId);
-    if (userIndex === -1) {
-        return { success: false, message: "المستخدم غير موجود." };
-    }
-    const newPasswordHash = await bcrypt.hash(newPassword_input, 10);
-    db.users[userIndex].password_hash = newPasswordHash;
-    db.users[userIndex].updatedAt = new Date().toISOString();
-    await writeDb(db);
-    await logAction('USER_PASSWORD_RESET_BY_ADMIN', 'INFO', `Admin ${adminUserId} reset password for user ${targetUserId}.`);
-    return { success: true, message: "تم إعادة تعيين كلمة مرور المستخدم بنجاح." };
+  const res = await fetch(`${API_BASE_URL}/users/${targetUserId}/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ newPassword_input }),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل إعادة تعيين كلمة المرور.' };
+  await logAction('USER_PASSWORD_RESET_BY_ADMIN', 'INFO', `Admin ${adminUserId} reset password for user ${targetUserId}.`);
+  return { success: true, message: 'تم إعادة تعيين كلمة مرور المستخدم بنجاح.' };
 }
 
 export async function approveEngineer(adminUserId: string, engineerUserId: string): Promise<{ success: boolean, message?: string }> {
-    const result = await updateUser(engineerUserId, { status: 'ACTIVE' });
-    if(result.success) {
-        await logAction('ENGINEER_APPROVAL_SUCCESS', 'INFO', `Admin ${adminUserId} approved engineer ${engineerUserId}.`);
-        return { success: true, message: "تمت الموافقة على المهندس." };
-    }
-    return { success: false, message: result.message || "فشل الموافقة على المهندس." };
+  const res = await fetch(`${API_BASE_URL}/users/${engineerUserId}/approve`, { method: 'POST' });
+  const json = await res.json();
+  if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل الموافقة على المهندس.' };
+  await logAction('ENGINEER_APPROVAL_SUCCESS', 'INFO', `Admin ${adminUserId} approved engineer ${engineerUserId}.`);
+  return { success: true, message: 'تمت الموافقة على المهندس.' };
 }
 
 export async function suspendUser(adminUserId: string, targetUserId: string): Promise<{ success: boolean, message?: string }> {
-    const db = await readDb();
-    const userIndex = db.users.findIndex((u: UserDocument) => u.id === targetUserId);
-    if (userIndex === -1) return { success: false, message: "المستخدم غير موجود." };
-    const user = db.users[userIndex];
-    if (user.role === 'ADMIN') return { success: false, message: "لا يمكن تعليق حساب مسؤول." };
-    
-    const newStatus = user.status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
-    db.users[userIndex].status = newStatus;
-    db.users[userIndex].updatedAt = new Date().toISOString();
-    await writeDb(db);
-    
-    const actionMessage = newStatus === 'SUSPENDED' ? "تم تعليق المستخدم" : "تم إلغاء تعليق المستخدم";
-    await logAction(newStatus === 'SUSPENDED' ? 'USER_SUSPEND_SUCCESS' : 'USER_UNSUSPEND_SUCCESS', 'INFO', `Admin ${adminUserId} ${newStatus === 'SUSPENDED' ? 'suspended' : 'unsuspended'} user ${targetUserId}.`);
-    return { success: true, message: `${actionMessage} بنجاح.` };
+  const res = await fetch(`${API_BASE_URL}/users/${targetUserId}/suspend`, { method: 'POST' });
+  const json = await res.json();
+  if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل تغيير حالة المستخدم.' };
+  const actionMessage = json.message || 'تم تحديث حالة المستخدم.';
+  await logAction(json.message?.includes('إلغاء') ? 'USER_UNSUSPEND_SUCCESS' : 'USER_SUSPEND_SUCCESS', 'INFO', `Admin ${adminUserId} toggled suspension for user ${targetUserId}.`);
+  return { success: true, message: actionMessage };
 }
 
 export async function getLogs(): Promise<LogEntry[]> {
-    const db = await readDb();
-    return (db.logs || []).sort((a: LogEntry, b: LogEntry) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  const res = await fetch(`${API_BASE_URL}/logs`, { cache: 'no-store' });
+  const json = await res.json();
+  return (json.logs || []) as LogEntry[];
 }
 
 export interface ChangePasswordResult {
@@ -559,137 +488,80 @@ export interface ChangePasswordResult {
 }
 
 export async function changeUserPassword(userId: string, currentPassword_input: string, newPassword_input: string): Promise<ChangePasswordResult> {
-    const db = await readDb();
-    const userIndex = db.users.findIndex((u: UserDocument) => u.id === userId);
-    if (userIndex === -1) return { success: false, message: "المستخدم غير موجود.", errorType: 'user_not_found' };
-    
-    const user = db.users[userIndex];
-    const passwordMatch = await bcrypt.compare(currentPassword_input, user.password_hash);
-    if (!passwordMatch) {
-        return { success: false, message: "كلمة المرور الحالية غير صحيحة.", errorType: 'invalid_current_password' };
-    }
-    
-    const newPasswordHash = await bcrypt.hash(newPassword_input, 10);
-    db.users[userIndex].password_hash = newPasswordHash;
-    db.users[userIndex].updatedAt = new Date().toISOString();
-    await writeDb(db);
-    
-    await logAction('USER_PASSWORD_CHANGE_SUCCESS', 'INFO', `User ${userId} changed their password.`, userId);
-    return { success: true, message: "تم تغيير كلمة المرور بنجاح." };
+  const res = await fetch(`${API_BASE_URL}/password/change`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, currentPassword_input, newPassword_input }),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) return { success: false, message: json.message, errorType: json.errorType };
+  await logAction('USER_PASSWORD_CHANGE_SUCCESS', 'INFO', `User ${userId} changed their password.`, userId);
+  return { success: true, message: 'تم تغيير كلمة المرور بنجاح.' };
 }
 
 export async function addCostReport(reportData: Omit<CostReport, 'id' | 'createdAt'>): Promise<CostReport | null> {
-    const db = await readDb();
-    const newReport: CostReport = {
-        ...reportData,
-        id: `cost-report-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-        createdAt: new Date().toISOString(),
-    };
-    if (!db.costReports) {
-      db.costReports = [];
-    }
-    db.costReports.push(newReport);
-    await writeDb(db);
-    await logAction('COST_REPORT_ADD_SUCCESS', 'INFO', `Cost report "${reportData.reportName}" (ID: ${newReport.id}) added for project ID ${reportData.projectId} by engineer ${reportData.engineerName}.`);
-    return newReport;
+  const res = await fetch(`${API_BASE_URL}/reports`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(reportData),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) return null;
+  await logAction('COST_REPORT_ADD_SUCCESS', 'INFO', `Cost report "${reportData.reportName}" added for project ID ${reportData.projectId}.`);
+  return json.report as CostReport;
 }
 
 export async function getCostReportsForProject(projectId: string): Promise<CostReport[]> {
-    const db = await readDb();
-    if (!db.costReports) {
-        return [];
-    }
-    const reports = db.costReports.filter((report: CostReport) => report.projectId?.toString() === projectId);
-    return reports.sort((a: CostReport, b: CostReport) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const res = await fetch(`${API_BASE_URL}/reports/project/${projectId}`, { cache: 'no-store' });
+  const json = await res.json();
+  return (json.reports || []) as CostReport[];
 }
 
 export async function deleteAllLogs(adminUserId: string): Promise<{ success: boolean; message?: string }> {
-    try {
-        const db = await readDb(true);
-        const logsCount = db.logs.length;
-
-        if (logsCount === 0) {
-            return { success: true, message: "لا توجد سجلات لحذفها." };
-        }
-        
-        const newLog: LogEntry = {
-            id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-            action: 'ADMIN_DELETE_ALL_LOGS',
-            level: 'WARNING',
-            message: `Admin deleted all ${logsCount} system logs.`,
-            timestamp: new Date().toISOString(),
-            user: adminUserId,
-        };
-        
-        db.logs = [newLog];
-        
-        await writeDb(db);
-        
-        return { success: true, message: "تم حذف جميع السجلات بنجاح." };
-    } catch (error: any) {
-        console.error('[db.ts] deleteAllLogs: Failed to delete logs:', error);
-        return { success: false, message: "فشل حذف السجلات بسبب خطأ في الخادم." };
-    }
+  try {
+    const res = await fetch(`${API_BASE_URL}/logs`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminUserId }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل حذف السجلات.' };
+    return { success: true, message: 'تم حذف جميع السجلات بنجاح.' };
+  } catch (error: any) {
+    console.error('[db.ts] deleteAllLogs: Failed to delete logs:', error);
+    return { success: false, message: 'فشل حذف السجلات بسبب خطأ في الخادم.' };
+  }
 }
 
 export async function createPasswordResetToken(email: string): Promise<{ success: boolean; token?: string; message?: string; userId?: string }> {
-    try {
-        const db = await readDb();
-        const userIndex = db.users.findIndex((u: UserDocument) => u.email.toLowerCase() === email.toLowerCase());
-        
-        if (userIndex === -1) {
-            return { success: false, message: "User not found" }; 
-        }
-
-        const user = db.users[userIndex];
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        const tokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
-
-        db.users[userIndex].resetToken = resetToken;
-        db.users[userIndex].resetTokenExpiry = tokenExpiry.toISOString();
-        
-        await writeDb(db);
-
-        await logAction('PASSWORD_RESET_TOKEN_CREATED', 'INFO', `Password reset token created for ${email}.`, user.id);
-
-        return { success: true, token: resetToken, userId: user.id };
-    } catch (error: any) {
-        await logAction('DB_ERROR', 'ERROR', `Error creating password reset token for ${email}: ${error.message}`);
-        return { success: false, message: "Database error." };
-    }
+  try {
+    const res = await fetch(`${API_BASE_URL}/password/reset-token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) return { success: false, message: json.message || 'Database error.' };
+    await logAction('PASSWORD_RESET_TOKEN_CREATED', 'INFO', `Password reset token created for ${email}.`, json.userId);
+    return { success: true, token: json.token, userId: json.userId };
+  } catch (error: any) {
+    await logAction('DB_ERROR', 'ERROR', `Error creating password reset token for ${email}: ${error.message}`);
+    return { success: false, message: 'Database error.' };
+  }
 }
 
 export async function resetPasswordWithToken(token: string, newPassword_input: string): Promise<{ success: boolean; message: string }> {
-    try {
-        const db = await readDb();
-        const userIndex = db.users.findIndex((u: UserDocument) => u.resetToken === token);
-
-        if (userIndex === -1) {
-            return { success: false, message: "رابط إعادة التعيين غير صالح." };
-        }
-
-        const user = db.users[userIndex];
-
-        if (!user.resetTokenExpiry || new Date(user.resetTokenExpiry) < new Date()) {
-            db.users[userIndex].resetToken = null;
-            db.users[userIndex].resetTokenExpiry = null;
-            await writeDb(db);
-            return { success: false, message: "رابط إعادة التعيين منتهي الصلاحية. يرجى طلب رابط جديد." };
-        }
-
-        const newPasswordHash = await bcrypt.hash(newPassword_input, 10);
-        db.users[userIndex].password_hash = newPasswordHash;
-        db.users[userIndex].resetToken = null;
-        db.users[userIndex].resetTokenExpiry = null;
-        db.users[userIndex].updatedAt = new Date().toISOString();
-        
-        await writeDb(db);
-        
-        await logAction('USER_PASSWORD_RESET_SUCCESS', 'INFO', `Password reset successful for user ${user.email} using token.`, user.id);
-        return { success: true, message: "تم إعادة تعيين كلمة المرور بنجاح." };
-
-    } catch (error: any) {
-        await logAction('DB_ERROR', 'ERROR', `Error resetting password with token: ${error.message}`);
-        return { success: false, message: "حدث خطأ في الخادم." };
-    }
+  try {
+    const res = await fetch(`${API_BASE_URL}/password/reset-with-token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, newPassword_input }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) return { success: false, message: json.message || 'حدث خطأ في الخادم.' };
+    return { success: true, message: 'تم إعادة تعيين كلمة المرور بنجاح.' };
+  } catch (error: any) {
+    await logAction('DB_ERROR', 'ERROR', `Error resetting password with token: ${error.message}`);
+    return { success: false, message: 'حدث خطأ في الخادم.' };
+  }
 }
