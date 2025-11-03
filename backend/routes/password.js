@@ -7,8 +7,11 @@ const router = express.Router();
 // Change own password
 router.post('/change', async (req, res) => {
   try {
-    const { userId, currentPassword_input, newPassword_input } = req.body;
-    const user = await User.findById(userId);
+    const { userId, email, currentPassword_input, newPassword_input } = req.body || {};
+    if (!userId && !email) {
+      return res.status(400).json({ success: false, message: 'معرف المستخدم أو البريد الإلكتروني مطلوب.', errorType: 'user_not_found' });
+    }
+    const user = userId ? await User.findById(userId) : await User.findOne({ email: String(email).toLowerCase() });
     if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود.', errorType: 'user_not_found' });
     const ok = await bcrypt.compare(currentPassword_input, user.passwordHash);
     if (!ok) return res.status(401).json({ success: false, message: 'كلمة المرور الحالية غير صحيحة.', errorType: 'invalid_current_password' });
