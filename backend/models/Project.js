@@ -53,6 +53,7 @@ const projectSchema = new mongoose.Schema(
     timelineTasks: { type: [timelineTaskSchema], default: [] },
     comments: { type: [projectCommentSchema], default: [] },
     linkedOwnerEmail: String,
+    hiddenForUserIds: { type: [String], default: [] },
   },
   { timestamps: true }
 );

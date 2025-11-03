@@ -1,8 +1,7 @@
 
 'use server';
 
-import fs from 'fs/promises';
-import path from 'path';
+// File DB removed
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
@@ -131,36 +130,7 @@ export interface SystemSettingsDocument {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-const DB_PATH = path.join(process.cwd(), '.data', 'db.json');
-
-// A simple in-memory cache to avoid reading the file on every single operation within a request.
-let dbCache: any = null;
-let lastReadTime = 0;
-
-async function readDb(force = false) {
-  const now = Date.now();
-  if (!force && dbCache && (now - lastReadTime < 100)) { // Cache for 100ms
-    return dbCache;
-  }
-  try {
-    const data = await fs.readFile(DB_PATH, 'utf-8');
-    dbCache = JSON.parse(data);
-    lastReadTime = now;
-    return dbCache;
-  } catch (error) {
-    console.error("Error reading database file:", error);
-    return { users: [], projects: [], logs: [], settings: {}, costReports: [] };
-  }
-}
-
-async function writeDb(data: any) {
-  try {
-    dbCache = data; // Update cache immediately
-    await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error("Error writing to database file:", error);
-  }
-}
+// Removed readDb/writeDb helpers and file-backed cache
 
 // ---- HELPER FUNCTIONS ----
 
@@ -196,19 +166,14 @@ export async function logAction(
   userIdentifier?: string,
 ): Promise<void> {
   try {
-    const db = await readDb(true); // Force read for logging
-    const newLog: LogEntry = {
-      id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-      action,
-      level,
-      message,
-      timestamp: new Date().toISOString(),
-      user: userIdentifier || 'System',
-    };
-    db.logs.push(newLog);
-    await writeDb(db);
+    await fetch(`${API_BASE_URL}/logs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, level, message, user: userIdentifier || 'System' }),
+      cache: 'no-store',
+    });
   } catch (error) {
-    console.error('[db.ts] logAction: Failed to log action:', action, error);
+    console.error('[db.ts] logAction: Failed to log action via API:', action, error);
   }
 }
 
@@ -339,19 +304,36 @@ export async function loginUser(email: string, password_input: string): Promise<
 }
 
 export async function findUserById(userId: string): Promise<Omit<UserDocument, 'password_hash'> | null> {
-    const db = await readDb();
-    const userDoc = db.users.find((u: UserDocument) => u.id === userId);
-    if (!userDoc) {
-        return null;
-    }
-    const { password_hash, ...user } = userDoc;
-    return user;
+  try {
+    const res = await fetch(`${API_BASE_URL}/users/${userId}`, { cache: 'no-store' });
+    const json = await res.json();
+    if (!res.ok || !json.success) return null;
+    return json.user || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function findUserByEmail(email: string): Promise<UserDocument | null> {
-    const db = await readDb();
-    const userDoc = db.users.find((u: UserDocument) => u.email.toLowerCase() === email.toLowerCase());
-    return userDoc || null;
+  try {
+    const res = await fetch(`${API_BASE_URL}/users/by/email?email=${encodeURIComponent(email)}`, { cache: 'no-store' });
+    const json = await res.json();
+    if (!res.ok || !json.success) return null;
+    const u = json.user;
+    return u ? ({
+      id: u.id || u._id,
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      status: u.status,
+      phone: u.phone,
+      profileImage: u.profileImage,
+      createdAt: u.createdAt,
+      updatedAt: u.updatedAt,
+    } as any) : null;
+  } catch {
+    return null;
+  }
 }
 
 export interface GetProjectsResult {
@@ -362,11 +344,15 @@ export interface GetProjectsResult {
 
 export async function getProjects(userIdOrEmail: string): Promise<GetProjectsResult> {
   try {
-    // Client code often knows user info; best-effort filter from query
-    const res = await fetch(`${API_BASE_URL}/projects`, { cache: 'no-store' });
+    const params = new URLSearchParams();
+    if (userIdOrEmail) params.set('userId', userIdOrEmail);
+    const res = await fetch(`${API_BASE_URL}/projects?${params.toString()}`, { cache: 'no-store' });
     const json = await res.json();
     if (!res.ok || !json.success) return { success: false, message: 'فشل تحميل المشاريع.' };
-    const projects = (json.projects || []) as Project[];
+    const projects = (json.projects || []).map((p: any) => ({
+      ...p,
+      id: p.id ?? p._id ?? p.projectId ?? `${p.name}-${p.createdAt || ''}`,
+    })) as Project[];
     return { success: true, projects };
   } catch (error: any) {
     await logAction('PROJECT_FETCH_FAILURE', 'ERROR', `Error fetching projects: ${error.message}`);
@@ -377,7 +363,9 @@ export async function getProjects(userIdOrEmail: string): Promise<GetProjectsRes
 export async function findProjectById(projectId: string): Promise<Project | null> {
   const res = await fetch(`${API_BASE_URL}/projects/${projectId}`, { cache: 'no-store' });
   const json = await res.json();
-  return json?.project || null;
+  if (!json?.project) return null;
+  const p = json.project;
+  return { ...p, id: p.id ?? p._id } as Project;
 }
 
 export async function addProject(projectData: Partial<Project>): Promise<Project | null> {
@@ -389,7 +377,8 @@ export async function addProject(projectData: Partial<Project>): Promise<Project
   });
   const json = await res.json();
   if (!res.ok || !json.success) return null;
-  return json.project as Project;
+  const p = json.project;
+  return { ...p, id: p.id ?? p._id } as Project;
 }
 
 export async function updateProject(projectId: string, updates: Partial<Project>): Promise<{ success: boolean; project?: Project; message?: string; }> {
@@ -401,15 +390,20 @@ export async function updateProject(projectId: string, updates: Partial<Project>
   const json = await res.json();
   if (!res.ok || !json.success) return { success: false, message: json.message || 'المشروع غير موجود.' };
   await logAction('PROJECT_UPDATE_SUCCESS', 'INFO', `Project ID ${projectId} updated.`);
-  return { success: true, project: json.project };
+  const p = json.project;
+  return { success: true, project: { ...p, id: p.id ?? p._id } as Project };
 }
 
-export async function deleteProject(projectId: string): Promise<{ success: boolean; message?: string }> {
-  const res = await fetch(`${API_BASE_URL}/projects/${projectId}`, { method: 'DELETE' });
+export async function deleteProject(projectId: string, userId?: string): Promise<{ success: boolean; message?: string }> {
+  const res = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: userId ? JSON.stringify({ userId }) : undefined,
+  });
   const json = await res.json();
   if (!res.ok || !json.success) return { success: false, message: json.message || 'المشروع غير موجود.' };
-  await logAction('PROJECT_DELETE_SUCCESS', 'INFO', `Project ID ${projectId} deleted.`);
-  return { success: true, message: 'تم حذف المشروع بنجاح.' };
+  await logAction('PROJECT_DELETE_SUCCESS', 'INFO', `Project ID ${projectId} hidden for user ${userId || ''}.`);
+  return { success: true, message: json.message || 'تم حذف المشروع بنجاح.' };
 }
 
 export async function getUsers(): Promise<{ success: boolean, users?: Omit<UserDocument, 'password_hash'>[], message?: string }> {

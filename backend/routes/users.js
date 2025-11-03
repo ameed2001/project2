@@ -3,6 +3,30 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const router = express.Router();
 
+// Get user by id (safe)
+router.get('/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id, { passwordHash: 0 });
+    if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
+    return res.json({ success: true, user });
+  } catch {
+    return res.status(400).json({ success: false, message: 'فشل تحميل المستخدم.' });
+  }
+});
+
+// Get user by email (safe)
+router.get('/by/email', async (req, res) => {
+  try {
+    const email = String(req.query.email || '').toLowerCase();
+    if (!email) return res.status(400).json({ success: false, message: 'Email required' });
+    const user = await User.findOne({ email }, { passwordHash: 0 });
+    if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
+    return res.json({ success: true, user });
+  } catch {
+    return res.status(400).json({ success: false, message: 'فشل تحميل المستخدم.' });
+  }
+});
+
 // List users (safe)
 router.get('/', async (req, res) => {
   try {
@@ -37,9 +61,13 @@ router.put('/:id', async (req, res) => {
 // Delete user
 router.delete('/:id', async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { status: 'DELETED', updatedAt: new Date() },
+      { new: true, projection: { passwordHash: 0 } }
+    );
     if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
-    return res.json({ success: true, message: 'تم حذف المستخدم بنجاح.' });
+    return res.json({ success: true, message: 'تم وضع المستخدم كـ محذوف (بدون إزالة من قاعدة البيانات).' });
   } catch (err) {
     return res.status(400).json({ success: false, message: 'فشل حذف المستخدم.' });
   }

@@ -12,6 +12,22 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Create a log entry
+router.post('/', async (req, res) => {
+  try {
+    const { action, level, message, user } = req.body || {};
+    const log = await Log.create({
+      action: action || 'APP_EVENT',
+      level: level || 'INFO',
+      message: message || '',
+      user: user || 'System',
+    });
+    return res.status(201).json({ success: true, log });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: 'Failed to create log' });
+  }
+});
+
 // Delete all logs (and insert a single audit log)
 router.delete('/', async (req, res) => {
   try {

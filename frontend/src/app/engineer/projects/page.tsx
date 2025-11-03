@@ -113,7 +113,7 @@ export default function EngineerProjectsPage() {
     if (!itemToDelete) return;
 
     setDeleteStep('loading');
-    const result = await dbDeleteProject(itemToDelete.id.toString());
+    const result = await dbDeleteProject(itemToDelete.id.toString(), userId || undefined);
     if (result.success) {
         setDeleteStep('success');
         setTimeout(() => {

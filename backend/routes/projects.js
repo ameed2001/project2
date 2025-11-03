@@ -5,11 +5,15 @@ const router = express.Router();
 // List projects (optionally by role/email/name)
 router.get('/', async (req, res) => {
   try {
-    const { role, email, name } = req.query;
+    const { role, email, name, userId } = req.query;
     let filter = {};
     if (role === 'OWNER' && email) filter.linkedOwnerEmail = String(email).toLowerCase();
     if (role === 'ENGINEER' && name) filter.engineer = name;
-    const projects = await Project.find(filter).sort({ createdAt: -1 });
+    let projects = await Project.find(filter).sort({ createdAt: -1 });
+    if (userId) {
+      const uid = String(userId);
+      projects = projects.filter(p => !(p.hiddenForUserIds || []).includes(uid));
+    }
     return res.json({ success: true, projects });
   } catch (err) {
     console.error('[GET /projects] error:', err);
@@ -53,9 +57,17 @@ router.put('/:id', async (req, res) => {
 // Delete
 router.delete('/:id', async (req, res) => {
   try {
-    const result = await Project.findByIdAndDelete(req.params.id);
-    if (!result) return res.status(404).json({ success: false, message: 'Project not found' });
-    return res.json({ success: true, message: 'Project deleted' });
+    const { userId } = req.body || {};
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'userId is required for per-user deletion' });
+    }
+    const project = await Project.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { hiddenForUserIds: String(userId) } },
+      { new: true }
+    );
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+    return res.json({ success: true, message: 'Project hidden for user' });
   } catch (err) {
     return res.status(400).json({ success: false, message: 'Failed to delete project' });
   }
