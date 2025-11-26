@@ -84,6 +84,9 @@ export function ProfilePageContent() {
       if (storedId) {
         const userProfile = await getUserProfile(storedId);
         if (userProfile) {
+          // التأكد من تعيين المعرف بشكل صحيح
+          // في MongoDB، المعرف يأتي باسم _id وليس id
+          userProfile.id = userProfile._id || storedId;
           setCurrentUser(userProfile);
           resetProfile({
             name: userProfile.name,
@@ -154,15 +157,37 @@ export function ProfilePageContent() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      console.error("لا يمكن حذف الحساب: المستخدم الحالي غير موجود");
+      toast({
+        title: "خطأ",
+        description: "لا يمكن حذف الحساب: بيانات المستخدم غير متوفرة",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!currentUser.id) {
+      console.error("لا يمكن حذف الحساب: معرف المستخدم غير موجود");
+      toast({
+        title: "خطأ",
+        description: "لا يمكن حذف الحساب: معرف المستخدم غير متوفر",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // استخدام _id بدلاً من id لأن MongoDB يستخدم _id
+    const userId = currentUser._id || currentUser.id;
+    console.log("جاري حذف حساب المستخدم بالمعرف:", userId);
     setDeleteStep('loading');
-    const result = await deleteUserAccountAction(currentUser.id);
+    const result = await deleteUserAccountAction(userId);
     if (result.success) {
       setDeleteStep('success');
       setTimeout(() => {
         toast({
-          title: "تم حذف الحساب",
-          description: "تم حذف حسابك بنجاح. نأسف لمغادرتك.",
+          title: "تم تعطيل الحساب",
+          description: "تم تعطيل حسابك مع الحفاظ على البيانات لمدة عام واحد. نأسف لمغادرتك.",
         });
         setIsDeleteDialogOpen(false);
         localStorage.clear();
@@ -290,8 +315,8 @@ export function ProfilePageContent() {
         </CardHeader>
         <CardContent>
             <div className="danger-action pt-4 border-t border-red-200">
-                <h3 className="font-bold text-lg text-gray-800">حذف الحساب بشكل دائم</h3>
-                <p className="text-sm text-gray-600 mb-4">سيتم حذف جميع بياناتك ومشاريعك المرتبطة بك نهائياً.</p>
+                <h3 className="font-bold text-lg text-gray-800">حذف الحساب</h3>
+                <p className="text-sm text-gray-600 mb-4">سيتم تعطيل حسابك فوراً، مع الحفاظ على بياناتك ومشاريعك لمدة عام واحد.</p>
                 <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                     <AlertDialogTrigger asChild>
                     <Button variant="destructive">
@@ -312,9 +337,9 @@ export function ProfilePageContent() {
                                     <div className="text-center text-base text-gray-600 space-y-4">
                                         <p>هل أنت متأكد تمامًا؟ هذا الإجراء لا يمكن التراجع عنه.</p>
                                         <div className="bg-red-50 border border-red-200 text-red-700 rounded-md p-3 text-sm">
-                                            سيتم حذف حسابك: <span className="font-bold">"{currentUser.name}"</span> وكل البيانات المرتبطة به.
+                                            سيتم تعطيل حسابك: <span className="font-bold">"{currentUser.name}"</span> مع الحفاظ على البيانات لمدة عام.
                                         </div>
-                                        <p className="text-xs text-gray-500">لا يمكن استعادة الحساب بعد الحذف.</p>
+                                        <p className="text-xs text-gray-500">يمكنك استعادة حسابك خلال سنة واحدة من تاريخ الحذف.</p>
                                     </div>
                                 </AlertDialogDescription>
                                 <AlertDialogFooter className="flex-col sm:flex-row sm:justify-center gap-4 pt-4">
@@ -340,8 +365,8 @@ export function ProfilePageContent() {
                                 <div className="h-24 w-24 bg-green-100 rounded-full flex items-center justify-center ring-4 ring-green-200">
                                     <Check className="h-12 w-12 text-green-600" />
                                 </div>
-                                <h2 className="text-3xl font-bold text-green-700">تم الحذف بنجاح</h2>
-                                <p className="text-lg text-gray-500">تم حذف حسابك بنجاح. سيتم توجيهك الآن.</p>
+                                <h2 className="text-3xl font-bold text-green-700">تم تعطيل الحساب بنجاح</h2>
+                                <p className="text-lg text-gray-500">تم تعطيل حسابك مع الحفاظ على البيانات لمدة عام. سيتم توجيهك الآن.</p>
                             </div>
                         )}
                     </AlertDialogContent>

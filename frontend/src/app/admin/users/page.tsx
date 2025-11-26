@@ -40,6 +40,7 @@ import {
   Search,
   AlertTriangle,
   Check,
+  RefreshCw,
 } from "lucide-react";
 import {
   Select,
@@ -193,6 +194,25 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleRestoreUser = async (userId: string, userName: string) => {
+    if (!adminUserId) return;
+
+    // استيراد دالة استعادة المستخدم
+    const { restoreUserAction } = await import('./actions');
+
+    const result = await restoreUserAction({ userId }, adminUserId);
+    if (result.success) {
+      refreshUsersFromDb();
+      toast({ 
+        title: "تم استعادة الحساب", 
+        description: `تم استعادة حساب ${userName} بنجاح.`,
+        variant: "default" 
+      });
+    } else {
+      toast({ title: "خطأ", description: result.message || "فشل استعادة الحساب", variant: "destructive" });
+    }
+  };
+
   useEffect(() => {
     refreshUsersFromDb();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -245,6 +265,7 @@ export default function AdminUsersPage() {
                 <SelectItem value="ACTIVE">نشط</SelectItem>
                 <SelectItem value="PENDING_APPROVAL">بانتظار الموافقة</SelectItem>
                 <SelectItem value="SUSPENDED">معلق</SelectItem>
+                <SelectItem value="DELETED">محذوف</SelectItem>
               </SelectContent>
             </Select>
             <Button
@@ -351,16 +372,29 @@ export default function AdminUsersPage() {
                               <span className="sr-only">تعديل</span>
                             </Button>
                             {user.role !== "ADMIN" && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-red-600 hover:text-red-800 hover:bg-red-100"
-                                title="حذف"
-                                onClick={() => handleOpenDeleteDialog(user)}
-                              >
-                                <Trash2 className="h-5 w-5" />
-                                <span className="sr-only">حذف</span>
-                              </Button>
+                              user.status === "DELETED" ? (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-green-600 hover:text-green-800 hover:bg-green-100"
+                                  title="استعادة الحساب"
+                                  onClick={() => handleRestoreUser(user.id, user.name)}
+                                >
+                                  <RefreshCw className="h-5 w-5" />
+                                  <span className="sr-only">استعادة</span>
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                                  title="حذف"
+                                  onClick={() => handleOpenDeleteDialog(user)}
+                                >
+                                  <Trash2 className="h-5 w-5" />
+                                  <span className="sr-only">حذف</span>
+                                </Button>
+                              )
                             )}
                             <Button
                               variant="ghost"

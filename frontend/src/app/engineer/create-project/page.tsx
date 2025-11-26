@@ -80,6 +80,9 @@ export default function CreateProjectPage() {
   const onSubmit: SubmitHandler<CreateProjectFormValues> = async (data) => {
     setIsLoading(true);
     
+    // Get userId from localStorage
+    const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
+    
     const projectDataForDb: Omit<Project, 'id' | 'overallProgress' | 'photos' | 'timelineTasks' | 'comments' | 'createdAt'> = {
         name: data.projectName,
         location: data.location,
@@ -94,7 +97,7 @@ export default function CreateProjectPage() {
         quantitySummary: ""
     };
 
-    const newProject = await dbAddProject(projectDataForDb);
+    const newProject = await dbAddProject(projectDataForDb, userId || undefined);
 
     if (newProject) {
         toast({

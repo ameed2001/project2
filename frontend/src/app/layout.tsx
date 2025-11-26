@@ -1,8 +1,24 @@
 import type { Metadata } from 'next';
+import { Tajawal } from 'next/font/google';
+import { Roboto_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import AppProviders from '@/components/AppProviders';
 import InitialLoader from '@/components/loading/InitialLoader';
+
+const tajawal = Tajawal({
+  weight: ['400', '500', '700'],
+  subsets: ['arabic'],
+  display: 'swap',
+  variable: '--font-tajawal',
+});
+
+const robotoMono = Roboto_Mono({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-roboto-mono',
+});
 
 export const metadata: Metadata = {
   title: 'المحترف لحساب الكميات',
@@ -19,13 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body font-mono antialiased" style={{ fontFamily: 'Tajawal, Roboto Mono, monospace, sans-serif' }}>
+      <body className={`${tajawal.variable} ${robotoMono.variable} font-body antialiased`} style={{ fontFamily: 'var(--font-tajawal), var(--font-roboto-mono), monospace, sans-serif' }}>
         <AppProviders>
           <InitialLoader>{children}</InitialLoader>
           <Toaster />

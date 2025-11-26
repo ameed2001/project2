@@ -7,13 +7,25 @@ router.get('/', async (req, res) => {
   try {
     const { role, email, name, userId } = req.query;
     let filter = {};
-    if (role === 'OWNER' && email) filter.linkedOwnerEmail = String(email).toLowerCase();
-    if (role === 'ENGINEER' && name) filter.engineer = name;
+    
+    // If userId is provided, filter by createdByUserId to show only user's projects
+    if (userId) {
+      const uid = String(userId);
+      filter.createdByUserId = uid;
+    } else {
+      // Legacy filtering for backward compatibility
+      if (role === 'OWNER' && email) filter.linkedOwnerEmail = String(email).toLowerCase();
+      if (role === 'ENGINEER' && name) filter.engineer = name;
+    }
+    
     let projects = await Project.find(filter).sort({ createdAt: -1 });
+    
+    // Also filter out projects hidden for this user
     if (userId) {
       const uid = String(userId);
       projects = projects.filter(p => !(p.hiddenForUserIds || []).includes(uid));
     }
+    
     return res.json({ success: true, projects });
   } catch (err) {
     console.error('[GET /projects] error:', err);
@@ -35,7 +47,14 @@ router.get('/:id', async (req, res) => {
 // Create
 router.post('/', async (req, res) => {
   try {
-    const project = await Project.create(req.body || {});
+    const projectData = req.body || {};
+    
+    // Ensure createdByUserId is set if provided
+    if (!projectData.createdByUserId && projectData.userId) {
+      projectData.createdByUserId = projectData.userId;
+    }
+    
+    const project = await Project.create(projectData);
     return res.status(201).json({ success: true, project });
   } catch (err) {
     console.error('[POST /projects] error:', err);

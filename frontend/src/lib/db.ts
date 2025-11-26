@@ -368,8 +368,13 @@ export async function findProjectById(projectId: string): Promise<Project | null
   return { ...p, id: p.id ?? p._id } as Project;
 }
 
-export async function addProject(projectData: Partial<Project>): Promise<Project | null> {
+export async function addProject(projectData: Partial<Project>, userId?: string): Promise<Project | null> {
   const payload = { ...projectData } as any;
+  // Add userId to payload so backend can set createdByUserId
+  if (userId) {
+    payload.userId = userId;
+    payload.createdByUserId = userId;
+  }
   const res = await fetch(`${API_BASE_URL}/projects`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -438,6 +443,14 @@ export async function deleteUser(userId: string): Promise<{ success: boolean, me
   if (!res.ok || !json.success) return { success: false, message: json.message || 'المستخدم غير موجود.' };
   await logAction('USER_DELETE_SUCCESS_BY_ADMIN', 'INFO', `User ID ${userId} deleted by admin.`);
   return { success: true, message: 'تم حذف المستخدم بنجاح.' };
+}
+
+export async function restoreUser(userId: string): Promise<{ success: boolean, message?: string }> {
+  const res = await fetch(`${API_BASE_URL}/users/${userId}/restore`, { method: 'POST' });
+  const json = await res.json();
+  if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل استعادة المستخدم.' };
+  await logAction('USER_RESTORE_SUCCESS', 'INFO', `User ID ${userId} restored by admin.`);
+  return { success: true, message: 'تم استعادة المستخدم بنجاح.' };
 }
 
 export async function adminResetUserPassword(adminUserId: string, targetUserId: string, newPassword_input: string): Promise<{ success: boolean, message?: string }> {

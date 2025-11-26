@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { 
-  Briefcase, FileText, Camera, Clock, MessageSquare, 
-  BarChart2, CheckCircle, PlayCircle, Loader2, Eye, Calculator, ArrowLeft, BarChartHorizontal, SlidersHorizontal
+import {
+  Briefcase, FileText, Camera, Clock, MessageSquare,
+  BarChart2, CheckCircle, PlayCircle, Loader2, Eye, Calculator, ArrowLeft, BarChartHorizontal, SlidersHorizontal, BookOpen
 } from 'lucide-react';
 import { getProjects, type Project } from '@/lib/db';
 import { useToast } from '@/hooks/use-toast';
@@ -43,19 +43,19 @@ export default function OwnerDashboardPage() {
         if (result.success && result.projects) {
           setProjects(result.projects);
         } else {
-          toast({ 
-            title: "خطأ", 
-            description: result.message || "فشل تحميل المشاريع.", 
-            variant: "destructive" 
+          toast({
+            title: "خطأ",
+            description: result.message || "فشل تحميل المشاريع.",
+            variant: "destructive"
           });
           setProjects([]);
         }
       } catch (error) {
         console.error("Error fetching projects for owner:", error);
-        toast({ 
-          title: "خطأ فادح", 
-          description: "حدث خطأ أثناء تحميل بيانات المشاريع.", 
-          variant: "destructive" 
+        toast({
+          title: "خطأ فادح",
+          description: "حدث خطأ أثناء تحميل بيانات المشاريع.",
+          variant: "destructive"
         });
         setProjects([]);
       }
@@ -71,82 +71,90 @@ export default function OwnerDashboardPage() {
   const activeProjects = projects.filter(p => p.status === 'قيد التنفيذ').length;
   const completedProjects = projects.filter(p => p.status === 'مكتمل').length;
   const averageProgress = totalProjects > 0 ? Math.round(projects.reduce((acc, p) => acc + (p.overallProgress || 0), 0) / totalProjects) : 0;
-  
-  const recentProjects = projects.sort((a, b) => 
+
+  const recentProjects = projects.sort((a, b) =>
     new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
   ).slice(0, 3);
 
   const overviewStats = [
-    { 
-      label: 'إجمالي المشاريع', 
-      value: totalProjects, 
-      icon: Briefcase, 
+    {
+      label: 'إجمالي المشاريع',
+      value: totalProjects,
+      icon: Briefcase,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100'
     },
-    { 
-      label: 'المشاريع قيد التنفيذ', 
-      value: activeProjects, 
-      icon: PlayCircle, 
+    {
+      label: 'المشاريع قيد التنفيذ',
+      value: activeProjects,
+      icon: PlayCircle,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100'
     },
-    { 
-      label: 'المشاريع المكتملة', 
-      value: completedProjects, 
-      icon: CheckCircle, 
+    {
+      label: 'المشاريع المكتملة',
+      value: completedProjects,
+      icon: CheckCircle,
       color: 'text-green-600',
       bgColor: 'bg-green-100'
     },
-     { 
-      label: 'متوسط الإنجاز الكلي', 
-      value: `${averageProgress}%`, 
-      icon: BarChartHorizontal, 
+    {
+      label: 'متوسط الإنجاز الكلي',
+      value: `${averageProgress}%`,
+      icon: BarChartHorizontal,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100'
     },
   ];
 
   const quickAccessLinks = [
-    { 
+    {
       title: "تقارير الكميات",
       description: "عرض ملخصات وتقارير كميات المواد والأعمال المنجزة.",
-      href: "/owner/projects", 
-      icon: FileText, 
+      href: "/owner/projects",
+      icon: FileText,
       iconColorClass: "text-indigo-500",
       buttonClass: "border-indigo-500 text-indigo-600 hover:bg-indigo-500 hover:text-white",
     },
-    { 
+    {
       title: "التقدم البصري",
       description: "مشاهدة أحدث الصور والفيديوهات المرفوعة من موقع المشروع.",
-      href: "/owner/projects", 
+      href: "/owner/projects",
       icon: Camera,
       iconColorClass: "text-purple-500",
       buttonClass: "border-purple-500 text-purple-600 hover:bg-purple-500 hover:text-white",
     },
-    { 
+    {
       title: "الجداول الزمنية",
       description: "متابعة الجدول الزمني للمشروع والمراحل الهامة.",
-      href: "/owner/project-timeline", 
-      icon: Clock, 
+      href: "/owner/project-timeline",
+      icon: Clock,
       iconColorClass: "text-cyan-500",
       buttonClass: "border-cyan-500 text-cyan-600 hover:bg-cyan-500 hover:text-white",
     },
-    { 
+    {
       title: "التعليقات والاستفسارات",
       description: "التواصل مع المهندس وترك ملاحظاتك واستفساراتك.",
-      href: "/owner/projects", 
+      href: "/owner/projects",
       icon: MessageSquare,
       iconColorClass: "text-orange-500",
       buttonClass: "border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white",
     },
-    { 
+    {
       title: "حاسبة التكاليف",
       description: "استخدام حاسبة تقديرية بسيطة لتكاليف المواد.",
-      href: "/owner/cost-estimator", 
+      href: "/owner/cost-estimator",
       icon: Calculator,
       iconColorClass: "text-red-500",
       buttonClass: "border-red-500 text-red-600 hover:bg-red-500 hover:text-white",
+    },
+    {
+      title: "إرشادات لصاحب البناء",
+      description: "نصائح وإرشادات مهمة قبل الإقدام على إنشاء مبنى.",
+      href: "/owner/building-guidelines",
+      icon: BookOpen,
+      iconColorClass: "text-green-500",
+      buttonClass: "border-green-500 text-green-600 hover:bg-green-500 hover:text-white",
     },
   ];
 
@@ -169,7 +177,7 @@ export default function OwnerDashboardPage() {
       <Card className="bg-white/95 dark:bg-card shadow-2xl border border-gray-300 dark:border-gray-700 rounded-3xl">
         <CardHeader>
           <CardTitle className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight flex items-center gap-3">
-             مرحباً بك، {ownerName || 'أيها المالك'}!
+            مرحباً بك، {ownerName || 'أيها المالك'}!
             <motion.span
               className="inline-block text-green-600 dark:text-green-400"
               animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
@@ -182,23 +190,23 @@ export default function OwnerDashboardPage() {
         </CardHeader>
         <CardContent>
           <p className="text-xl leading-relaxed text-gray-700 dark:text-gray-300 max-w-4xl mx-auto select-text">
-            هذه هي لوحة التحكم الخاصة بك حيث يمكنك متابعة مشاريعك، عرض التقارير التفصيلية، 
+            هذه هي لوحة التحكم الخاصة بك حيث يمكنك متابعة مشاريعك، عرض التقارير التفصيلية،
             وإدارة جميع جوانب مشاريع البناء الخاصة بك.
           </p>
         </CardContent>
       </Card>
-      
+
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {isLoading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <Card key={i} className="shadow-sm">
               <CardContent className="p-6 flex items-center justify-between">
-                  <div className="text-right">
-                    <Skeleton className="h-4 w-[120px]" />
-                    <Skeleton className="h-8 w-[50px] mt-1" />
-                  </div>
-                  <Skeleton className="h-14 w-14 rounded-full" />
+                <div className="text-right">
+                  <Skeleton className="h-4 w-[120px]" />
+                  <Skeleton className="h-8 w-[50px] mt-1" />
+                </div>
+                <Skeleton className="h-14 w-14 rounded-full" />
               </CardContent>
             </Card>
           ))
@@ -266,8 +274,8 @@ export default function OwnerDashboardPage() {
                   recentProjects.map((project) => (
                     <TableRow key={project.id} className="hover:bg-gray-50">
                       <TableCell className="font-medium">
-                        <Link 
-                          href={`/owner/projects/${project.id}`} 
+                        <Link
+                          href={`/owner/projects/${project.id}`}
                           className="hover:text-app-red transition-colors"
                         >
                           {project.name}
@@ -283,12 +291,12 @@ export default function OwnerDashboardPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <Progress 
-                            value={project.overallProgress || 0} 
+                          <Progress
+                            value={project.overallProgress || 0}
                             className="w-full h-2"
                             indicatorColor={
-                              (project.overallProgress || 0) >= 80 ? 'bg-green-500' : 
-                              (project.overallProgress || 0) >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                              (project.overallProgress || 0) >= 80 ? 'bg-green-500' :
+                                (project.overallProgress || 0) >= 50 ? 'bg-yellow-500' : 'bg-red-500'
                             }
                           />
                           <span className="text-sm font-medium w-10">
@@ -340,8 +348,8 @@ export default function OwnerDashboardPage() {
             {quickAccessLinks.map((category) => {
               const Icon = category.icon;
               return (
-                <Card 
-                  key={category.title} 
+                <Card
+                  key={category.title}
                   className="card-hover-effect flex flex-col h-full text-right p-6 shadow-lg rounded-lg border border-gray-200/80"
                 >
                   <div className="flex items-center justify-start gap-3 mb-4">

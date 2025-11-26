@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema(
     profileImage: { type: String },
     resetToken: { type: String, default: null },
     resetTokenExpiry: { type: Date, default: null },
+    deletionExpiryDate: { type: Date, default: null }, // تاريخ انتهاء صلاحية الحذف (بعد سنة)
   },
   { timestamps: true }
 );

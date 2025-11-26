@@ -61,13 +61,21 @@ router.put('/:id', async (req, res) => {
 // Delete user
 router.delete('/:id', async (req, res) => {
   try {
+    // حساب تاريخ انتهاء صلاحية الحذف (بعد سنة من الآن)
+    const deletionExpiryDate = new Date();
+    deletionExpiryDate.setFullYear(deletionExpiryDate.getFullYear() + 1);
+    
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { status: 'DELETED', updatedAt: new Date() },
+      { 
+        status: 'DELETED', 
+        updatedAt: new Date(),
+        deletionExpiryDate: deletionExpiryDate
+      },
       { new: true, projection: { passwordHash: 0 } }
     );
     if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
-    return res.json({ success: true, message: 'تم وضع المستخدم كـ محذوف (بدون إزالة من قاعدة البيانات).' });
+    return res.json({ success: true, message: 'تم حذف الحساب وسيتم الاحتفاظ بالبيانات لمدة عام.' });
   } catch (err) {
     return res.status(400).json({ success: false, message: 'فشل حذف المستخدم.' });
   }
@@ -109,6 +117,39 @@ router.post('/:id/suspend', async (req, res) => {
     return res.json({ success: true, message: newStatus === 'SUSPENDED' ? 'تم تعليق المستخدم بنجاح.' : 'تم إلغاء تعليق المستخدم بنجاح.' });
   } catch (err) {
     return res.status(400).json({ success: false, message: 'فشل تغيير حالة المستخدم.' });
+  }
+});
+
+// Restore deleted user
+router.post('/:id/restore', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
+    if (user.status !== 'DELETED') return res.status(400).json({ success: false, message: 'لا يمكن استعادة هذا الحساب لأنه لم يتم حذفه.' });
+
+    // تحديث حالة المستخدم إلى نشط وإزالة تاريخ انتهاء صلاحية الحذف
+    user.status = 'ACTIVE';
+    user.deletionExpiryDate = null;
+    await user.save();
+
+    return res.json({ 
+      success: true, 
+      message: 'تم استعادة حساب المستخدم بنجاح.',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        phone: user.phone,
+        profileImage: user.profileImage,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
+    });
+  } catch (err) {
+    console.error('Error restoring user:', err);
+    return res.status(400).json({ success: false, message: 'فشل استعادة المستخدم.' });
   }
 });
 

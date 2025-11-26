@@ -54,6 +54,7 @@ const projectSchema = new mongoose.Schema(
     comments: { type: [projectCommentSchema], default: [] },
     linkedOwnerEmail: String,
     hiddenForUserIds: { type: [String], default: [] },
+    createdByUserId: String, // User ID of the creator
   },
   { timestamps: true }
 );

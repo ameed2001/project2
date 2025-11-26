@@ -121,4 +121,34 @@ export async function adminUpdateUserAction(
     user: result.user,
   };
 }
+
+// Schema for restoring a deleted user account
+const restoreUserSchema = z.object({
+  userId: z.string().min(1, { message: "معرف المستخدم مطلوب." }),
+});
+
+type RestoreUserFormValues = z.infer<typeof restoreUserSchema>;
+
+export async function restoreUserAction(
+  data: RestoreUserFormValues,
+  adminUserId: string // For logging
+): Promise<{ success: boolean, message?: string }> {
+  console.log(`[RestoreUserAction] Admin ${adminUserId} attempting to restore user ID: ${data.userId}`);
+
+  // استدعاء دالة استعادة المستخدم من قاعدة البيانات
+  const { restoreUser } = await import('@/lib/db');
+  const result = await restoreUser(data.userId);
+
+  if (!result.success) {
+    return {
+      success: false,
+      message: result.message || "فشل استعادة حساب المستخدم.",
+    };
+  }
+
+  return {
+    success: true,
+    message: result.message || "تم استعادة حساب المستخدم بنجاح.",
+  };
+}
     

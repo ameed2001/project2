@@ -72,15 +72,26 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
       return await response.json();
     } catch (error) {
       console.error('API request failed:', error);
+      
+      // Handle different types of errors
+      let errorMessage = 'حدث خطأ في الاتصال بالخادم';
+      
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        errorMessage = 'فشل الاتصال بالخادم. يرجى التأكد من أن الخادم يعمل على المنفذ 3001';
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'حدث خطأ في الاتصال بالخادم'
+        message: errorMessage
       };
     }
   }
