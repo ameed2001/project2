@@ -57,6 +57,7 @@ export default function LinkOwnerPage() {
         }
 
         if (usersResult.success && usersResult.users) {
+          // Filter owners (IDs are already normalized in getUsers)
           setOwners(usersResult.users.filter(u => u.role === 'OWNER' && u.status === 'ACTIVE'));
         } else {
           toast({ title: "خطأ", description: "فشل تحميل قائمة المالكين.", variant: "destructive" });
@@ -77,14 +78,32 @@ export default function LinkOwnerPage() {
   };
 
   const handleOwnerChange = (ownerId: string) => {
-    const owner = owners.find(o => o.id === ownerId);
+    const owner = owners.find(o => {
+      const oId = o.id || (o as any)._id;
+      return oId === ownerId;
+    });
     setSelectedOwner(owner || null);
     setValue("ownerId", ownerId);
   };
 
   const onSubmit = async (data: LinkOwnerFormValues) => {
     setIsLoading(true);
-    const selectedOwner = owners.find(o => o.id === data.ownerId);
+    
+    // Validate required fields
+    if (!data.projectId || !data.ownerId) {
+      toast({ 
+        title: "خطأ", 
+        description: "يرجى اختيار المشروع والمالك.", 
+        variant: "destructive" 
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    const selectedOwner = owners.find(o => {
+      const oId = o.id || (o as any)._id;
+      return oId === data.ownerId;
+    });
 
     if (!selectedOwner) {
       toast({ title: "خطأ", description: "المالك المختار غير موجود.", variant: "destructive" });
@@ -170,11 +189,14 @@ export default function LinkOwnerPage() {
                           <SelectValue placeholder="اختر مشروعًا لربطه..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {projects.length > 0 ? projects.map(project => (
-                            <SelectItem key={project.id} value={project.id.toString()}>
-                              {project.name}
-                            </SelectItem>
-                          )) : <SelectItem value="none" disabled>لا توجد مشاريع متاحة</SelectItem>}
+                          {projects.length > 0 ? projects.map((project, index) => {
+                            const projectId = project.id?.toString() || (project as any)._id?.toString() || `project-${index}`;
+                            return (
+                              <SelectItem key={projectId} value={projectId}>
+                                {project.name}
+                              </SelectItem>
+                            );
+                          }) : <SelectItem value="none" disabled>لا توجد مشاريع متاحة</SelectItem>}
                         </SelectContent>
                       </Select>
                     )}
@@ -199,11 +221,14 @@ export default function LinkOwnerPage() {
                           <SelectValue placeholder="اختر مالكًا لربطه بالمشروع..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {owners.length > 0 ? owners.map(owner => (
-                            <SelectItem key={owner.id} value={owner.id}>
-                              {owner.name}
-                            </SelectItem>
-                          )) : <SelectItem value="none" disabled>لا يوجد ملاك متاحون</SelectItem>}
+                          {owners.length > 0 ? owners.map((owner, index) => {
+                            const ownerId = owner.id || (owner as any)._id || `owner-${index}`;
+                            return (
+                              <SelectItem key={ownerId} value={ownerId}>
+                                {owner.name}
+                              </SelectItem>
+                            );
+                          }) : <SelectItem value="none" disabled>لا يوجد ملاك متاحون</SelectItem>}
                         </SelectContent>
                       </Select>
                     )}

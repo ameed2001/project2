@@ -415,7 +415,12 @@ export async function getUsers(): Promise<{ success: boolean, users?: Omit<UserD
   const res = await fetch(`${API_BASE_URL}/users`, { cache: 'no-store' });
   const json = await res.json();
   if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل تحميل المستخدمين.' };
-  return { success: true, users: json.users };
+  // Normalize user IDs (handle both id and _id from MongoDB)
+  const users = (json.users || []).map((u: any) => ({
+    ...u,
+    id: u.id || u._id || `${u.email}-${Date.now()}`
+  }));
+  return { success: true, users };
 }
 
 export interface AdminUserUpdateResult {

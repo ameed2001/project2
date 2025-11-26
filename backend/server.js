@@ -34,8 +34,25 @@ mongoose.connect(process.env.MONGO_URI)
 
 
 app.get('/api/health', (req, res) => {
-  res.json({ success: true, message: 'Server is running!' });
+  res.json({ 
+    success: true, 
+    message: 'Server is running!',
+    port: PORT,
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      calculations: {
+        concrete: '/api/calculations/concrete',
+        steel: '/api/calculations/steel',
+        costEstimation: '/api/calculations/cost-estimation'
+      }
+    }
+  });
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`✅ API Base URL: http://localhost:${PORT}/api`);
+  console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
+  console.log(`✅ Calculations endpoint: http://localhost:${PORT}/api/calculations/concrete`);
+});

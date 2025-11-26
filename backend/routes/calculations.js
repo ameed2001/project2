@@ -3,6 +3,7 @@ const router = express.Router();
 
 // Concrete calculation endpoint
 router.post('/concrete', (req, res) => {
+  console.log('[POST /calculations/concrete] Received request:', req.body);
   try {
     const { projectArea, floors, foundationDepth, wallThickness, slabThickness } = req.body;
 
@@ -64,6 +65,7 @@ router.post('/concrete', (req, res) => {
 
 // Steel calculation endpoint
 router.post('/steel', (req, res) => {
+  console.log('[POST /calculations/steel] Received request:', req.body);
   try {
     const { concreteVolume, steelRatio } = req.body;
 
