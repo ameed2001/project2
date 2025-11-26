@@ -211,6 +211,15 @@ const Footer = () => {
             >
               عميد سماره
             </Link>
+            <span> و </span>
+            <Link
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-app-gold hover:text-app-red transition-colors font-medium"
+            >
+              عنان كايد
+            </Link>
           </div>
         </div>
       </div>

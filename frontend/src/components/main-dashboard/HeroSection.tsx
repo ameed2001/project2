@@ -12,9 +12,9 @@ const HeroSection = () => {
   }, []);
 
   const handleStartClick = useCallback(() => {
-    const authSection = document.getElementById('auth-cards-section');
-    if (authSection) {
-      authSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const startJourneySection = document.getElementById('start-journey');
+    if (startJourneySection) {
+      startJourneySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, []);
 
@@ -145,11 +145,7 @@ const HeroSection = () => {
               <div className="flex flex-wrap justify-center gap-4 mb-6">
                 <span className="bg-app-gold/20 text-app-gold px-4 py-2 rounded-full text-sm font-semibold border border-app-gold/30">
                   الأبنية
-                </span>
-                <span className="bg-app-gold/20 text-app-gold px-4 py-2 rounded-full text-sm font-semibold border border-app-gold/30">
-                  الآبار
-                </span>
-                <span className="bg-app-gold/20 text-app-gold px-4 py-2 rounded-full text-sm font-semibold border border-app-gold/30">
+                </span>                <span className="bg-app-gold/20 text-app-gold px-4 py-2 rounded-full text-sm font-semibold border border-app-gold/30">
                   الجدران الاستنادية
                 </span>
                 <span className="bg-app-gold/20 text-app-gold px-4 py-2 rounded-full text-sm font-semibold border border-app-gold/30">
