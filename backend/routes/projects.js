@@ -5,17 +5,26 @@ const router = express.Router();
 // List projects (optionally by role/email/name)
 router.get('/', async (req, res) => {
   try {
-    const { role, email, name, userId } = req.query;
+    const { role, email, name, userId, userEmail, userRole } = req.query;
     let filter = {};
     
-    // If userId is provided, filter by createdByUserId to show only user's projects
-    if (userId) {
+    // If userRole is OWNER and userEmail is provided, show projects linked to that owner
+    if (userRole === 'OWNER' && userEmail) {
+      filter.linkedOwnerEmail = String(userEmail).toLowerCase();
+    } 
+    // If userId is provided and user is not OWNER, filter by createdByUserId
+    else if (userId && userRole !== 'OWNER') {
       const uid = String(userId);
       filter.createdByUserId = uid;
-    } else {
-      // Legacy filtering for backward compatibility
+    } 
+    // Legacy filtering for backward compatibility
+    else {
       if (role === 'OWNER' && email) filter.linkedOwnerEmail = String(email).toLowerCase();
       if (role === 'ENGINEER' && name) filter.engineer = name;
+      if (userId) {
+        const uid = String(userId);
+        filter.createdByUserId = uid;
+      }
     }
     
     let projects = await Project.find(filter).sort({ createdAt: -1 });

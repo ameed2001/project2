@@ -45,7 +45,9 @@ export default function OwnerProjectsPage() {
       }
       setIsLoading(true);
       try {
-        const result = await dbGetProjects(userId);
+        const userEmail = typeof window !== 'undefined' ? localStorage.getItem('userEmail') : null;
+        const userRole = typeof window !== 'undefined' ? localStorage.getItem('userRole') : null;
+        const result = await dbGetProjects(userId, userRole || undefined, userEmail || undefined);
         if (result.success && result.projects) {
           setProjects(result.projects);
         } else {

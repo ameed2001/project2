@@ -57,8 +57,9 @@ export default function LinkOwnerPage() {
         }
 
         if (usersResult.success && usersResult.users) {
-          // Filter owners (IDs are already normalized in getUsers)
-          setOwners(usersResult.users.filter(u => u.role === 'OWNER' && u.status === 'ACTIVE'));
+          // Filter only active owners (IDs are already normalized in getUsers)
+          const activeOwners = usersResult.users.filter(u => u.role === 'OWNER' && u.status === 'ACTIVE');
+          setOwners(activeOwners);
         } else {
           toast({ title: "خطأ", description: "فشل تحميل قائمة المالكين.", variant: "destructive" });
         }
@@ -225,7 +226,7 @@ export default function LinkOwnerPage() {
                             const ownerId = owner.id || (owner as any)._id || `owner-${index}`;
                             return (
                               <SelectItem key={ownerId} value={ownerId}>
-                                {owner.name}
+                                {owner.email}
                               </SelectItem>
                             );
                           }) : <SelectItem value="none" disabled>لا يوجد ملاك متاحون</SelectItem>}

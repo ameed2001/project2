@@ -342,10 +342,22 @@ export interface GetProjectsResult {
   message?: string;
 }
 
-export async function getProjects(userIdOrEmail: string): Promise<GetProjectsResult> {
+export async function getProjects(userIdOrEmail: string, userRole?: string, userEmail?: string): Promise<GetProjectsResult> {
   try {
     const params = new URLSearchParams();
-    if (userIdOrEmail) params.set('userId', userIdOrEmail);
+    
+    // If user is OWNER, use email to find linked projects
+    if (userRole === 'OWNER' && userEmail) {
+      params.set('userRole', 'OWNER');
+      params.set('userEmail', userEmail.toLowerCase());
+    } else if (userIdOrEmail) {
+      // For engineers and others, use userId
+      params.set('userId', userIdOrEmail);
+      if (userRole) {
+        params.set('userRole', userRole);
+      }
+    }
+    
     const res = await fetch(`${API_BASE_URL}/projects?${params.toString()}`, { cache: 'no-store' });
     const json = await res.json();
     if (!res.ok || !json.success) return { success: false, message: 'فشل تحميل المشاريع.' };
