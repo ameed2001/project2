@@ -5,23 +5,31 @@ const User = require('../models/User');
 
 // Register
 router.post('/register', async (req, res) => {
+  console.log('[register] Received request:', req.body);
   try {
     const { name, email, password_input, role, phone, status } = req.body;
 
     if (!name || !email || !password_input || !role) {
+      console.log('[register] Error: Missing required fields.');
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
+    console.log('[register] Checking for existing user with email:', email);
     const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing) {
+      console.log('[register] Error: Email already exists.');
       return res.status(409).json({ success: false, message: 'Email already exists', errorType: 'email_exists' });
     }
+    console.log('[register] User does not exist. Proceeding.');
 
+    console.log('[register] Hashing password...');
     const passwordHash = await bcrypt.hash(password_input, 10);
+    console.log('[register] Password hashed successfully.');
+
     const normalizedRole = String(role).toUpperCase();
     const initialStatus = status || 'ACTIVE';
 
-    const user = await User.create({
+    const userData = {
       name,
       email: email.toLowerCase(),
       passwordHash,
@@ -29,7 +37,11 @@ router.post('/register', async (req, res) => {
       status: initialStatus,
       phone,
       profileImage: `https://placehold.co/100x100.png?text=${name.substring(0, 2).toUpperCase()}`,
-    });
+    };
+
+    console.log('[register] Creating user with data:', userData);
+    const user = await User.create(userData);
+    console.log('[register] User created successfully:', user._id);
 
     const { passwordHash: _, ...safeUser } = user.toObject();
     return res.status(201).json({ success: true, message: 'User registered successfully', user: safeUser });
