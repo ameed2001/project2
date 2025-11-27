@@ -4,55 +4,63 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-const authRoutes = require('./routes/auth');
-const projectRoutes = require('./routes/projects');
-const userRoutes = require('./routes/users');
-const logRoutes = require('./routes/logs');
-const settingRoutes = require('./routes/settings');
-const reportRoutes = require('./routes/reports');
-const passwordRoutes = require('./routes/password');
-const calculationRoutes = require('./routes/calculations');
+/* ----------------------- Middlewares ----------------------- */
 
-app.use('/api', authRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/logs', logRoutes);
-app.use('/api/settings', settingRoutes);
-app.use('/api/reports', reportRoutes);
-app.use('/api/password', passwordRoutes);
-app.use('/api/calculations', calculationRoutes);
+// CORS مع إعدادات خفيفة للأداء
+app.use(cors({ origin: true, credentials: true }));
+
+// JSON Parsing أسرع (مع limit لتقليل الهجمات)
+app.use(express.json({ limit: '1mb' }));
+
+// ضغط الاستجابات لتسريع النقل
+const compression = require('compression');
+app.use(compression());
+
+// حماية أساسية
+const helmet = require('helmet');
+app.use(helmet());
+
+/* -------------------------- Routes -------------------------- */
+
+app.use('/api', require('./routes/auth'));
+app.use('/api/projects', require('./routes/projects'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/logs', require('./routes/logs'));
+app.use('/api/settings', require('./routes/settings'));
+app.use('/api/reports', require('./routes/reports'));
+app.use('/api/password', require('./routes/password'));
+app.use('/api/calculations', require('./routes/calculations'));
+
+/* ------------------- Database Connection -------------------- */
+
 if (!process.env.MONGO_URI) {
-  console.error('❌ Missing MONGO_URI in environment. Check backend/.env');
+  console.error('❌ Missing MONGO_URI in .env');
   process.exit(1);
 }
-mongoose.connect(process.env.MONGO_URI)
+
+mongoose.connect(process.env.MONGO_URI, {
+  serverSelectionTimeoutMS: 5000,  // تحسين سرعة الكشف عن المشاكل
+  socketTimeoutMS: 45000
+})
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
+/* ------------------------- Health --------------------------- */
 
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    success: true, 
-    message: 'Server is running!',
-    port: PORT,
-    timestamp: new Date().toISOString(),
-    endpoints: {
-      calculations: {
-        concrete: '/api/calculations/concrete',
-        steel: '/api/calculations/steel',
-        costEstimation: '/api/calculations/cost-estimation'
-      }
-    }
+  res.json({
+    ok: true,
+    time: new Date(),
+    port: PORT
   });
 });
 
+/* ------------------------- Server ---------------------------- */
+
 const PORT = process.env.PORT || 3001;
+
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-  console.log(`✅ API Base URL: http://localhost:${PORT}/api`);
-  console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
-  console.log(`✅ Calculations endpoint: http://localhost:${PORT}/api/calculations/concrete`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🟢 http://localhost:${PORT}/api`);
 });
