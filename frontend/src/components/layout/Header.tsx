@@ -4,13 +4,14 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  Instagram, Facebook, Clock, Calendar, Bell, Settings, 
+import {
+  Instagram, Facebook, Clock, Calendar, Bell, Settings,
   User, LogOut, X, ChevronDown, Home, Calculator,
   FileText, Phone, Mail, MapPin, Star, Award, Shield
 } from 'lucide-react';
 import Notifications from './Notifications';
 import WhatsAppIcon from '../icons/WhatsAppIcon';
+import { APP_LOGO_SRC } from '@/lib/branding';
 
 // --- آية الكرسي مقسمة إلى أجزاء ---
 const ayatAlKursiParts = [
@@ -63,7 +64,7 @@ const useDateTime = (): DateTime => {
       const seconds = now.getSeconds().toString().padStart(2, '0');
       const ampm = hours >= 12 ? 'مساءً' : 'صباحاً';
       const formattedHours = (hours % 12 || 12).toString().padStart(2, '0');
-      
+
       const time = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
       const date = now.toLocaleDateString('ar-EG-u-nu-latn', {
         weekday: 'long',
@@ -217,11 +218,11 @@ const SocialLinks = () => {
       {socialLinks.map((link, index) => {
         const IconComponent = link.icon;
         return (
-          <a 
+          <a
             key={index}
             href={link.href}
-            target="_blank" 
-            rel="noopener noreferrer" 
+            target="_blank"
+            rel="noopener noreferrer"
             className={`group relative bg-white/5 backdrop-blur-sm ${link.hoverClass} p-3 rounded-xl transition-all duration-300 transform hover:scale-110 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-transparent border border-white/10 hover:border-white/20`}
             title={link.title}
             aria-label={link.ariaLabel}
@@ -289,7 +290,7 @@ const MobileMenu = ({ isOpen, onClose, userRole }: { isOpen: boolean; onClose: (
   ], []);
 
   const filteredItems = useMemo(() => {
-    return navigationItems.filter(item => 
+    return navigationItems.filter(item =>
       !item.roles || item.roles.includes(userRole || '')
     );
   }, [navigationItems, userRole]);
@@ -372,7 +373,7 @@ const UserMenu = ({ userRole }: { userRole: string | null }) => {
         <span className="hidden md:block font-medium">{getRoleDisplay(userRole)}</span>
         <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
-      
+
       {isOpen && (
         <div className="absolute top-full left-0 mt-2 w-56 bg-gradient-to-b from-gray-900 to-gray-800 rounded-xl shadow-2xl border border-yellow-500/30 z-50 backdrop-blur-lg">
           <div className="p-2">
@@ -447,19 +448,19 @@ const SocialAndClock = () => {
 // مكون الشعار والعنوان بتصميم توهج ذهبي
 const LogoAndTitle = () => {
   return (
-    <Link 
-      href="/" 
+    <Link
+      href="/"
       className="flex items-center gap-4 text-right group transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-transparent rounded-xl p-2"
       aria-label="الصفحة الرئيسية - المحترف لحساب الكميات"
     >
       {/* حاوية الشعار بتأثير التوهج */}
       <div className="relative rounded-2xl p-1 transition-all duration-500 group-hover:scale-105">
-        <Image 
-          src="https://i.imgur.com/aHGLWjU.jpg"
-          unoptimized 
-          alt="شعار الموقع" 
-          width={96} 
-          height={96} 
+        <Image
+          src={APP_LOGO_SRC}
+          unoptimized
+          alt="شعار الموقع"
+          width={96}
+          height={96}
           className="relative rounded-xl border-2 border-gray-700 object-contain transition-all duration-500 group-hover:border-yellow-400/50"
           data-ai-hint="logo construction"
           priority
@@ -490,7 +491,7 @@ const LogoAndTitle = () => {
             `;
           }}
         />
-        
+
         {/* مؤشر الحالة */}
         <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-3 border-gray-900 flex items-center justify-center shadow-lg">
           <Shield className="h-3 w-3 text-white" />
@@ -530,9 +531,9 @@ const LogoAndTitle = () => {
 export default function Header() {
   const { userRole, isLoading } = useUserRole();
   const { isOpen, toggleMenu, closeMenu } = useMobileMenu();
-  
-  const showNotifications = useMemo(() => 
-    userRole === 'ENGINEER' || userRole === 'OWNER', 
+
+  const showNotifications = useMemo(() =>
+    userRole === 'ENGINEER' || userRole === 'OWNER',
     [userRole]
   );
 
@@ -543,11 +544,11 @@ export default function Header() {
         {/* تأثيرات الخلفية المتقدمة */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-yellow-400/10 via-transparent to-transparent"></div>
         <div className="absolute inset-0 bg-[conic-gradient(from_0deg,_transparent_0deg,_rgba(255,215,0,0.1)_360deg)]"></div>
-        
+
         <div className="container mx-auto flex h-24 items-center justify-between px-4 relative z-10">
           {/* الجانب الأيمن */}
           <div className="flex items-center gap-4">
-            
+
             <LogoAndTitle />
           </div>
 
@@ -565,7 +566,7 @@ export default function Header() {
           </div>
         </div>
       </div>
-      
+
       {/* خط ذهبي متحرك محسن */}
       <div className="h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-300 animate-pulse"></div>

@@ -81,7 +81,7 @@ export default function LoginPage() {
           localStorage.setItem('userEmail', result.user.email);
           localStorage.setItem('userId', result.user.id);
         }
-        
+
         setTimeout(() => {
           if (result.redirectTo) {
             router.push(result.redirectTo);
@@ -145,15 +145,15 @@ export default function LoginPage() {
                     </Link>
                   </div>
                   <div className="relative mt-1">
-                      <Input id="password_input" type={showPassword ? "text" : "password"} {...register("password_input")} placeholder="********" />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 left-0 flex items-center px-3 text-gray-500 hover:text-gray-700">
-                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                      </button>
+                    <Input id="password_input" type={showPassword ? "text" : "password"} {...register("password_input")} placeholder="********" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 left-0 flex items-center px-3 text-gray-500 hover:text-gray-700">
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
                   </div>
                   {errors.password_input && <p className="text-red-500 text-xs mt-1">{errors.password_input.message}</p>}
                 </div>
                 <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 text-lg" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="animate-spin" /> : <LogIn className="ml-2 h-5 w-5"/>}
+                  {isLoading ? <Loader2 className="animate-spin" /> : <LogIn className="ml-2 h-5 w-5" />}
                   {isLoading ? "جاري التحقق..." : "تسجيل الدخول"}
                 </Button>
               </form>
@@ -176,13 +176,13 @@ export default function LoginPage() {
           {/* Left side - The branding */}
           <div className="hidden lg:flex relative items-center justify-center p-12 bg-slate-900 text-white">
             <div className="absolute inset-0">
-                <Image
-                    src="https://i.imgur.com/pAQ7w0g.jpg"
-                    alt="خلفية هندسية"
-                    fill
-                    className="object-cover opacity-10"
-                    data-ai-hint="engineering blueprint"
-                />
+              <Image
+                src="/signup-bg.jpg"
+                alt="خلفية هندسية"
+                fill
+                className="object-cover opacity-10"
+                data-ai-hint="engineering blueprint"
+              />
             </div>
             <div className="relative z-10 text-right">
               <h2 className="text-4xl font-bold mb-4">أدواتك الهندسية في مكان واحد</h2>
@@ -190,10 +190,10 @@ export default function LoginPage() {
                 قم بإدارة مشاريعك، وحساب الكميات بدقة، والتواصل مع المالكين بكل سهولة من خلال لوحة تحكم متكاملة.
               </p>
               <Button variant="outline" asChild className="bg-transparent border-app-gold text-app-gold hover:bg-app-gold hover:text-slate-900">
-                  <Link href="/">
-                      <ArrowLeft className="ml-2 h-4 w-4" />
-                      العودة إلى الرئيسية
-                  </Link>
+                <Link href="/">
+                  <ArrowLeft className="ml-2 h-4 w-4" />
+                  العودة إلى الرئيسية
+                </Link>
               </Button>
             </div>
           </div>

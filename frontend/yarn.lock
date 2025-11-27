@@ -608,6 +608,16 @@
   resolved "https://registry.npmjs.org/@floating-ui/utils/-/utils-0.2.10.tgz"
   integrity sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==
 
+"@fontsource/roboto-mono@^5.2.8":
+  version "5.2.8"
+  resolved "https://registry.yarnpkg.com/@fontsource/roboto-mono/-/roboto-mono-5.2.8.tgz#b77a6e3f6c0329ed2d762f0aa9c9ea4740bc4ff5"
+  integrity sha512-M0XPRcvkOKiTPooXwX7yJSNpuad3CPcQwsADBfnopz3apBs+VKI47pc42mlvAxJjNTRauu5rndSxHc8F52bR7Q==
+
+"@fontsource/tajawal@^5.2.7":
+  version "5.2.7"
+  resolved "https://registry.yarnpkg.com/@fontsource/tajawal/-/tajawal-5.2.7.tgz#e63bbc31235af69c3929b9b7a2b81a11516990ca"
+  integrity sha512-EzswJ4JoFmYQ7hn7O5Do7Azd1tjzujSEzN+DvTZNcAwZ3usfPvEJ3hTQtYv9VN+mUH4flOi6LedtqCkVUHZs9A==
+
 "@genkit-ai/ai@1.14.0":
   version "1.14.0"
   resolved "https://registry.npmjs.org/@genkit-ai/ai/-/ai-1.14.0.tgz"

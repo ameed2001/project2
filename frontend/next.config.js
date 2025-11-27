@@ -15,6 +15,10 @@ const nextConfig = {
   ],
 
   images: {
+    // Disable Next.js image optimization so external images are fetched
+    // directly by the browser instead of being proxied through the dev server.
+    // This avoids the timeout errors we were seeing for i.imgur.com assets.
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'placehold.co', pathname: '/**' },
       { protocol: 'https', hostname: 'i.imgur.com', pathname: '/**' },

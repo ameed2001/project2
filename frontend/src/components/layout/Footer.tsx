@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import WhatsAppIcon from '../icons/WhatsAppIcon';
+import { APP_LOGO_SRC } from '@/lib/branding';
 
 
 const Footer = () => {
@@ -80,7 +81,7 @@ const Footer = () => {
             <div className="flex items-center justify-center lg:justify-start mb-3">
               <div className="relative">
                 <Image
-                  src="/header-bg.jpg"
+                  src={APP_LOGO_SRC}
                   alt="شعار الموقع"
                   width={80}
                   height={80}

@@ -36,39 +36,39 @@ const SocialAndClock = () => {
         {/* Left Side: Social Icons */}
         <div className="flex-1 flex justify-start">
           <div className="flex items-center gap-3">
-              <a 
-                href="https://wa.me/972594371424" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="group bg-slate-800/70 hover:bg-green-600 p-2.5 rounded-lg transition-all duration-300 transform hover:scale-110 hover:shadow-md"
-                title="تواصل عبر واتساب"
-              >
-                <WhatsAppIcon className="h-5 w-5 text-gray-300 group-hover:text-white transition-colors" />
-              </a>
-              <a 
-                href="https://www.instagram.com/a.w.samarah3/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="group bg-slate-800/70 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 p-2.5 rounded-lg transition-all duration-300 transform hover:scale-110 hover:shadow-md"
-                title="تابعنا على إنستغرام"
-              >
-                <Instagram className="h-5 w-5 text-gray-300 group-hover:text-white transition-colors" />
-              </a>
-              <a 
-                href="https://www.facebook.com/a.w.samarah4" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="group bg-slate-800/70 hover:bg-blue-600 p-2.5 rounded-lg transition-all duration-300 transform hover:scale-110 hover:shadow-md"
-                title="تابعنا على فيسبوك"
-              >
-                <Facebook className="h-5 w-5 text-gray-300 group-hover:text-white transition-colors" />
-              </a>
+            <a
+              href="https://wa.me/972594371424"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group bg-slate-800/70 hover:bg-green-600 p-2.5 rounded-lg transition-all duration-300 transform hover:scale-110 hover:shadow-md"
+              title="تواصل عبر واتساب"
+            >
+              <WhatsAppIcon className="h-5 w-5 text-gray-300 group-hover:text-white transition-colors" />
+            </a>
+            <a
+              href="https://www.instagram.com/a.w.samarah3/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group bg-slate-800/70 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 p-2.5 rounded-lg transition-all duration-300 transform hover:scale-110 hover:shadow-md"
+              title="تابعنا على إنستغرام"
+            >
+              <Instagram className="h-5 w-5 text-gray-300 group-hover:text-white transition-colors" />
+            </a>
+            <a
+              href="https://www.facebook.com/a.w.samarah4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group bg-slate-800/70 hover:bg-blue-600 p-2.5 rounded-lg transition-all duration-300 transform hover:scale-110 hover:shadow-md"
+              title="تابعنا على فيسبوك"
+            >
+              <Facebook className="h-5 w-5 text-gray-300 group-hover:text-white transition-colors" />
+            </a>
           </div>
         </div>
 
         {/* Center: Bismillah */}
         <div className="flex-shrink-0 text-lg font-semibold text-app-gold tracking-wider">
-            بِسْمِ اللهِ الرَّحْمنِ الرَّحِيم
+          بِسْمِ اللهِ الرَّحْمنِ الرَّحِيم
         </div>
 
         {/* Right Side: Time and Date */}
@@ -127,32 +127,32 @@ export default function AdminHeader() {
 
   return (
     <header className="shadow-md">
-        <SocialAndClock />
-        <div className="bg-slate-800 text-white backdrop-blur-sm">
-            <div className="container mx-auto flex h-20 items-center justify-between px-4">
-                {/* Right Side: Spacer */}
-                <div className="flex-1 flex justify-start">
-                    {/* This is a spacer to balance the layout */}
-                </div>
-                
-                {/* Center: Logo & Title */}
-                <div className="flex-1 flex justify-center">
-                    <Link href="/" className="flex items-center gap-4 text-right">
-                         <Image src="https://i.imgur.com/79bO3U2.jpg" alt="شعار الموقع" width={56} height={56} className="rounded-full border-2 border-app-gold" data-ai-hint="logo construction"/>
-                        <div>
-                            <h1 className="text-3xl font-extrabold text-app-red">حساب أسعار المواد</h1>
-                            <p className="text-base text-gray-400">أدوات احتساب كميات الحديد والباطون للمشروع</p>
-                        </div>
-                    </Link>
-                </div>
+      <SocialAndClock />
+      <div className="bg-slate-800 text-white backdrop-blur-sm">
+        <div className="container mx-auto flex h-20 items-center justify-between px-4">
+          {/* Right Side: Spacer */}
+          <div className="flex-1 flex justify-start">
+            {/* This is a spacer to balance the layout */}
+          </div>
 
-                {/* Left Side: Notifications */}
-                <div className="flex-1 flex justify-end">
-                    {showNotifications && <Notifications />}
-                </div>
-            </div>
+          {/* Center: Logo & Title */}
+          <div className="flex-1 flex justify-center">
+            <Link href="/" className="flex items-center gap-4 text-right">
+              <Image src="/admin-logo.jpg" alt="شعار الموقع" width={56} height={56} className="rounded-full border-2 border-app-gold" data-ai-hint="logo construction" />
+              <div>
+                <h1 className="text-3xl font-extrabold text-app-red">حساب أسعار المواد</h1>
+                <p className="text-base text-gray-400">أدوات احتساب كميات الحديد والباطون للمشروع</p>
+              </div>
+            </Link>
+          </div>
+
+          {/* Left Side: Notifications */}
+          <div className="flex-1 flex justify-end">
+            {showNotifications && <Notifications />}
+          </div>
         </div>
-        <div className="h-0.5 bg-app-gold" />
+      </div>
+      <div className="h-0.5 bg-app-gold" />
     </header>
   );
 }

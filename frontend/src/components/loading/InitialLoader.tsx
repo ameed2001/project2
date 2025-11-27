@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Image from 'next/image';
+import { APP_LOGO_SRC } from '@/lib/branding';
 
 interface InitialLoaderProps {
   children: ReactNode;
@@ -116,13 +117,12 @@ const InitialLoader = ({ children }: InitialLoaderProps) => {
   if (!showLoader) return <>{children}</>;
 
   return (
-    <div className={`fixed inset-0 z-50 overflow-hidden transition-all duration-700 ease-out ${
-      fadeOut ? "opacity-0 scale-105" : "opacity-100 scale-100"
-    }`}>
+    <div className={`fixed inset-0 z-50 overflow-hidden transition-all duration-700 ease-out ${fadeOut ? "opacity-0 scale-105" : "opacity-100 scale-100"
+      }`}>
       {/* الخلفية المتحركة */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-gray-900 to-slate-900">
         {/* الشبكة المتحركة */}
-        <div 
+        <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: `
@@ -133,7 +133,7 @@ const InitialLoader = ({ children }: InitialLoaderProps) => {
             animation: 'gridMove 20s linear infinite'
           }}
         />
-        
+
         {/* الجسيمات المتحركة */}
         {/* تقليل الجسيمات المتحركة لأقصى حد لتسريع الأداء */}
         <div className="absolute inset-0 overflow-hidden">
@@ -150,7 +150,7 @@ const InitialLoader = ({ children }: InitialLoaderProps) => {
             />
           ))}
         </div>
-        
+
         {/* الهالات المتوهجة */}
         <div className="absolute top-0 left-1/4 w-80 h-80 bg-yellow-400/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-red-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
@@ -168,7 +168,7 @@ const InitialLoader = ({ children }: InitialLoaderProps) => {
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-sweep" />
               <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-yellow-400">
                 <Image
-                  src="https://i.imgur.com/aHGLWjU.jpg"
+                  src={APP_LOGO_SRC}
                   alt="شعار الموقع"
                   width={96}
                   height={96}
@@ -209,11 +209,11 @@ const InitialLoader = ({ children }: InitialLoaderProps) => {
               <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400/20 to-red-400/20 rounded-lg blur-xl animate-pulse" />
             </div>
           </div>
-          
+
           {/* شريط التقدم المطور */}
           <div className="relative">
             <div className="h-4 bg-gray-800/80 rounded-full border border-gray-700/50 overflow-hidden backdrop-blur-sm shadow-inner relative">
-              <div 
+              <div
                 className={`h-full bg-gradient-to-r ${loadingSteps[currentStep]?.color} transition-all duration-500 ease-out relative overflow-hidden`}
                 style={{ width: `${progress}%` }}
               >
@@ -223,7 +223,7 @@ const InitialLoader = ({ children }: InitialLoaderProps) => {
               </div>
             </div>
             {/* مؤشر التقدم */}
-            <div 
+            <div
               className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gradient-to-r from-yellow-400 to-red-400 rounded-full shadow-lg animate-pulse"
               style={{ left: `${progress}%`, marginLeft: '-12px' }}
             />
@@ -248,7 +248,7 @@ const InitialLoader = ({ children }: InitialLoaderProps) => {
             </div>
           </div>
           <div className="w-full h-2 bg-gray-800/60 rounded-full overflow-hidden">
-            <div 
+            <div
               className={`h-full bg-gradient-to-r ${loadingSteps[currentStep]?.color} transition-all duration-500 relative`}
               style={{ width: `${stepInnerProgress}%` }}
             >

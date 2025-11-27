@@ -91,7 +91,7 @@ export default function OwnerSignupPage() {
     <AppLayout>
       <div className="min-h-[calc(100vh-250px)] flex items-center justify-center p-4">
         <div className="w-full max-w-6xl mx-auto rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
-          
+
           {/* Right side - The Form */}
           <div className="bg-white p-8 md:p-12 text-right">
             <div className="text-center mb-8">
@@ -145,7 +145,7 @@ export default function OwnerSignupPage() {
                 {isLoading ? <Loader2 className="animate-spin" /> : <><UserPlus className="ml-2 h-5 w-5" />إنشاء حساب مالك</>}
               </Button>
             </form>
-            
+
             <div className="text-center text-sm text-gray-600 mt-6 space-y-2">
               <p>
                 لديك حساب بالفعل؟{' '}
@@ -161,17 +161,17 @@ export default function OwnerSignupPage() {
               </p>
             </div>
           </div>
-          
+
           {/* Left side - The branding */}
           <div className="hidden lg:flex relative items-center justify-center p-12 bg-slate-900 text-white">
             <div className="absolute inset-0">
-                <Image
-                    src="https://i.imgur.com/v0tPitY.jpg"
-                    alt="خلفية معمارية"
-                    fill
-                    className="object-cover opacity-10"
-                    data-ai-hint="modern architecture house"
-                />
+              <Image
+                src="/owner-signup-bg.jpg"
+                alt="خلفية معمارية"
+                fill
+                className="object-cover opacity-10"
+                data-ai-hint="modern architecture house"
+              />
             </div>
             <div className="relative z-10 text-right">
               <h2 className="text-4xl font-bold mb-4">متابعة مشروعك أصبحت أسهل</h2>
@@ -187,10 +187,10 @@ export default function OwnerSignupPage() {
                 ))}
               </ul>
               <Button variant="outline" asChild className="mt-10 bg-transparent border-app-gold text-app-gold hover:bg-app-gold hover:text-slate-900">
-                  <Link href="/">
-                      <ArrowLeft className="ml-2 h-4 w-4" />
-                      العودة إلى الرئيسية
-                  </Link>
+                <Link href="/">
+                  <ArrowLeft className="ml-2 h-4 w-4" />
+                  العودة إلى الرئيسية
+                </Link>
               </Button>
             </div>
           </div>
