@@ -52,7 +52,7 @@ const Footer = () => {
     },
     { key: 'admin-login', href: '/admin-login', label: 'تسجيل دخول المدير' },
   ];
-  
+
   const socialLinks = [
     { name: "Instagram", href: "https://www.instagram.com/a.w.samarah3/", icon: Instagram, hoverBg: "hover:bg-[#d62976]" },
     { name: "Facebook", href: "https://www.facebook.com/a.w.samarah4", icon: Facebook, hoverBg: "hover:bg-[#3b5998]" },
@@ -61,16 +61,16 @@ const Footer = () => {
 
   return (
     <footer className="bg-slate-900 text-white mt-auto relative overflow-hidden" dir="rtl">
-        <Image
-            src="https://i.imgur.com/CqHksgC.jpg"
-            alt="خلفية تذييل معمارية"
-            fill
-            quality={75}
-            className="absolute inset-0 z-0 opacity-5 object-cover"
-            data-ai-hint="architecture blueprint"
-        />
-        <div className="absolute inset-0 bg-slate-900/80 z-0" />
-      
+      <Image
+        src="/footer-logo.jpg"
+        alt="خلفية تذييل معمارية"
+        fill
+        quality={75}
+        className="absolute inset-0 z-0 opacity-5 object-cover"
+        data-ai-hint="architecture blueprint"
+      />
+      <div className="absolute inset-0 bg-slate-900/80 z-0" />
+
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-app-gold via-app-red to-app-gold"></div>
 
       <div className="container mx-auto px-6 py-8 relative z-10">
@@ -80,7 +80,7 @@ const Footer = () => {
             <div className="flex items-center justify-center lg:justify-start mb-3">
               <div className="relative">
                 <Image
-                  src="https://i.imgur.com/aHGLWjU.jpg"
+                  src="/header-bg.jpg"
                   alt="شعار الموقع"
                   width={80}
                   height={80}
@@ -161,32 +161,32 @@ const Footer = () => {
           </div>
 
           <div className="text-center lg:text-right">
-             <h4 className="text-base font-semibold text-app-gold mb-3 relative pb-1">
+            <h4 className="text-base font-semibold text-app-gold mb-3 relative pb-1">
               تابعنا
               <span className="block absolute bottom-0 right-0 w-10 h-0.5 bg-app-gold"></span>
             </h4>
             <ul className="flex justify-center lg:justify-start items-center gap-4">
               {socialLinks.map((link) => {
-                  const IconComponent = link.icon;
-                  return (
-                      <li key={link.name}>
-                          <a
-                              href={link.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              aria-label={link.name}
-                              className={cn(
-                                  "group w-[52px] h-[52px] rounded-full bg-gray-700 flex items-center justify-center overflow-hidden transition-all duration-300",
-                                  link.hoverBg,
-                                  "active:scale-90"
-                              )}
-                          >
-                              <IconComponent
-                                  className="w-6 h-6 text-white transition-transform duration-300 group-hover:animate-slide-in-top"
-                              />
-                          </a>
-                      </li>
-                  );
+                const IconComponent = link.icon;
+                return (
+                  <li key={link.name}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={link.name}
+                      className={cn(
+                        "group w-[52px] h-[52px] rounded-full bg-gray-700 flex items-center justify-center overflow-hidden transition-all duration-300",
+                        link.hoverBg,
+                        "active:scale-90"
+                      )}
+                    >
+                      <IconComponent
+                        className="w-6 h-6 text-white transition-transform duration-300 group-hover:animate-slide-in-top"
+                      />
+                    </a>
+                  </li>
+                );
               })}
             </ul>
           </div>
