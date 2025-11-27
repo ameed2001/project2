@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -445,29 +444,60 @@ const SocialAndClock = () => {
   );
 };
 
-// مكون الشعار والعنوان المحسن بشكل كبير
+// مكون الشعار والعنوان بتصميم توهج ذهبي
 const LogoAndTitle = () => {
   return (
     <Link 
       href="/" 
-      className="flex items-center gap-4 text-right group transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-transparent rounded-xl p-3"
+      className="flex items-center gap-4 text-right group transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-transparent rounded-xl p-2"
       aria-label="الصفحة الرئيسية - المحترف لحساب الكميات"
     >
-      <div className="relative">
-        <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400 rounded-full opacity-0 group-hover:opacity-30 blur-lg transition-opacity duration-300"></div>
+      {/* حاوية الشعار بتأثير التوهج */}
+      <div className="relative rounded-2xl p-1 transition-all duration-500 group-hover:scale-105">
         <Image 
-          src="https://i.imgur.com/79bO3U2.jpg" 
+          src="https://i.imgur.com/aHGLWjU.jpg"
+          unoptimized 
           alt="شعار الموقع" 
-          width={64} 
-          height={64} 
-          className="relative rounded-full border-4 border-yellow-400 transition-all duration-300 group-hover:border-yellow-300 shadow-xl group-hover:shadow-yellow-500/25" 
+          width={96} 
+          height={96} 
+          className="relative rounded-xl border-2 border-gray-700 object-contain transition-all duration-500 group-hover:border-yellow-400/50"
           data-ai-hint="logo construction"
           priority
+          style={{
+            // تأثير التوهج الذهبي
+            boxShadow: `
+              0 0 5px rgba(250, 204, 21, 0.5),
+              0 0 10px rgba(250, 204, 21, 0.4),
+              0 0 20px rgba(250, 204, 21, 0.3),
+              0 0 40px rgba(250, 204, 21, 0.2)
+            `,
+          }}
+          // زيادة قوة التوهج عند التمرير
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = `
+              0 0 10px rgba(250, 204, 21, 0.8),
+              0 0 20px rgba(250, 204, 21, 0.6),
+              0 0 40px rgba(250, 204, 21, 0.5),
+              0 0 80px rgba(250, 204, 21, 0.4)
+            `;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = `
+              0 0 5px rgba(250, 204, 21, 0.5),
+              0 0 10px rgba(250, 204, 21, 0.4),
+              0 0 20px rgba(250, 204, 21, 0.3),
+              0 0 40px rgba(250, 204, 21, 0.2)
+            `;
+          }}
         />
-        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-3 border-white flex items-center justify-center">
+        
+        {/* مؤشر الحالة */}
+        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-3 border-gray-900 flex items-center justify-center shadow-lg">
           <Shield className="h-3 w-3 text-white" />
         </div>
       </div>
+
+      {/* تفاصيل العنوان */}
       <div className="hidden md:block">
         <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 group-hover:from-yellow-300 group-hover:to-yellow-500 transition-all duration-300">
           المحترف لحساب الكميات

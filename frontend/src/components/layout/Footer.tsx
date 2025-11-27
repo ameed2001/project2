@@ -80,12 +80,13 @@ const Footer = () => {
             <div className="flex items-center justify-center lg:justify-start mb-3">
               <div className="relative">
                 <Image
-                  src="https://i.imgur.com/79bO3U2.jpg"
+                  src="https://i.imgur.com/aHGLWjU.jpg"
                   alt="شعار الموقع"
-                  width={40}
-                  height={40}
-                  className="rounded-full border-2 border-app-gold shadow-md shadow-app-gold/30"
+                  width={80}
+                  height={80}
+                  className="rounded-lg border-2 border-app-gold shadow-md shadow-app-gold/30 object-contain"
                   data-ai-hint="logo construction"
+                  unoptimized
                 />
               </div>
               <div className="mr-3">
