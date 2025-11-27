@@ -3,6 +3,27 @@ const bcrypt = require('bcryptjs');
 const router = express.Router();
 const User = require('../models/User');
 
+// دالة للتحقق من نطاق البريد الإلكتروني المسموح به لأصحاب الممتلكات
+function isEmailDomainAllowedForOwner(email) {
+  if (!email) return false;
+  
+  const lowerEmail = email.toLowerCase();
+  const allowedDomains = [
+    'gmail.com',
+    'yahoo.com',
+    'hotmail.com',
+    'outlook.com',
+    'outlook.sa'
+  ];
+  
+  // استخراج النطاق من البريد الإلكتروني
+  const emailParts = lowerEmail.split('@');
+  if (emailParts.length !== 2) return false;
+  
+  const domain = emailParts[1];
+  return allowedDomains.includes(domain);
+}
+
 // Register
 router.post('/register', async (req, res) => {
   console.log('[register] Received request:', req.body);
@@ -12,6 +33,26 @@ router.post('/register', async (req, res) => {
     if (!name || !email || !password_input || !role) {
       console.log('[register] Error: Missing required fields.');
       return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+    
+    // التحقق من نطاق البريد الإلكتروني لأصحاب الممتلكات
+    if (role.toUpperCase() === 'OWNER' && !isEmailDomainAllowedForOwner(email)) {
+      console.log('[register] Error: Email domain not allowed for owner role.');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'يجب أن يكون البريد الإلكتروني لأصحاب الممتلكات من أحد النطاقات التالية: Gmail، Yahoo، Hotmail، Outlook مع امتدادات .com أو .sa',
+        errorType: 'invalid_email_domain' 
+      });
+    }
+    
+    // التحقق من نطاق البريد الإلكتروني للمهندسين
+    if (role.toUpperCase() === 'ENGINEER' && !isEmailDomainAllowedForOwner(email)) {
+      console.log('[register] Error: Email domain not allowed for engineer role.');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'يجب أن يكون البريد الإلكتروني للمهندسين من أحد النطاقات التالية: Gmail، Yahoo، Hotmail، Outlook مع امتدادات .com أو .sa',
+        errorType: 'invalid_email_domain' 
+      });
     }
 
     console.log('[register] Checking for existing user with email:', email);
