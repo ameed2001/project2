@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Shield, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Shield, ArrowLeft, Eye, EyeOff, Activity, AlertTriangle, Skull, Lock, Radiation } from 'lucide-react';
 import { adminLoginAction } from './actions';
 import { type LoginActionResponse } from '@/types/auth';
 import { useRouter } from 'next/navigation';
@@ -23,32 +23,19 @@ const CodeBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   
-  // أسطر كود للعرض
   const codeLines = [
-    "function authenticate(email, password) {",
-    "  const user = users.find(u => u.email === email);",
-    "  if (user && bcrypt.compareSync(password, user.hash)) {",
-    "    return generateToken(user);",
-    "  }",
-    "  throw new Error('Invalid credentials');",
-    "}",
-    "// Middleware لحماية المسارات",
-    "const adminMiddleware = (req, res, next) => {",
-    "  if (req.user.role !== 'ADMIN') {",
-    "    return res.status(403).send('Access denied');",
-    "  }",
-    "  next();",
-    "};",
-    "// تسجيل الدخول الآمن",
-    "app.post('/admin/login', rateLimiter, (req, res) => {",
-    "  const { email, password } = req.body;",
-    "  try {",
-    "    const token = authenticate(email, password);",
-    "    res.json({ token });",
-    "  } catch (err) {",
-    "    res.status(401).send(err.message);",
-    "  }",
-    "});"
+    "SECURITY LEVEL: MAXIMUM",
+    "ACCESS RESTRICTED TO AUTHORIZED PERSONNEL ONLY",
+    "WARNING: UNAUTHORIZED ACCESS WILL BE PROSECUTED",
+    "SYSTEM MONITORING ACTIVE - ALL ACTIVITIES LOGGED",
+    "SECURITY BREACH DETECTED: ACTIVATING COUNTERMEASURES",
+    "CRITICAL INFRASTRUCTURE ACCESS - AUTHORIZATION REQUIRED",
+    "CLASSIFIED INFORMATION - HANDLE WITH EXTREME CAUTION",
+    "TRESPASSERS WILL BE TRACKED AND PROSECUTED",
+    "MULTI-FACTOR AUTHENTICATION REQUIRED FOR ACCESS",
+    "SECURITY CLEARANCE LEVEL: OMEGA REQUIRED",
+    "SYSTEM DEFENSE MECHANISMS: ARMED AND ACTIVE",
+    "ALL ACCESS ATTEMPTS ARE BEING RECORDED AND MONITORED"
   ];
 
   useEffect(() => {
@@ -61,59 +48,50 @@ const CodeBackground = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     
-    // إعدادات الرسم
-    const fontSize = 14;
+    const fontSize = 16;
     const lineHeight = fontSize * 1.5;
     const maxLines = Math.floor(canvas.height / lineHeight);
-    const linePositions: {y: number, line: string, alpha: number}[] = [];
+    const linePositions: {y: number, line: string, alpha: number, color: string}[] = [];
     
-    // إنشاء خطوط جديدة بشكل دوري
     const addNewLine = () => {
       if (linePositions.length < maxLines) {
         const randomLine = codeLines[Math.floor(Math.random() * codeLines.length)];
         linePositions.push({
           y: -lineHeight,
           line: randomLine,
-          alpha: 0.1
+          alpha: 0.1,
+          color: Math.random() > 0.7 ? 'rgba(239, 68, 68, ' : 'rgba(212, 175, 55, ' // Red or Gold
         });
       }
     };
     
-    // رسم الخطوط
     const drawLines = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.font = `${fontSize}px monospace`;
+      ctx.font = `bold ${fontSize}px monospace`;
       
       for (let i = 0; i < linePositions.length; i++) {
         const pos = linePositions[i];
-        ctx.fillStyle = `rgba(74, 222, 128, ${pos.alpha})`;
+        ctx.fillStyle = `${pos.color}${pos.alpha})`;
         ctx.fillText(pos.line, 50, pos.y);
         
-        // تحريك الخط لأسفل
-        pos.y += 0.5;
+        pos.y += 0.8;
+        if (pos.alpha < 0.6) pos.alpha += 0.003;
         
-        // زيادة الشفافية تدريجياً
-        if (pos.alpha < 0.3) pos.alpha += 0.001;
-        
-        // إزالة الخطوط التي تجاوزت الشاشة
         if (pos.y > canvas.height + lineHeight) {
           linePositions.splice(i, 1);
           i--;
         }
       }
       
-      // إضافة خط جديد بشكل عشوائي
-      if (Math.random() < 0.05) {
+      if (Math.random() < 0.08) {
         addNewLine();
       }
       
       animationRef.current = requestAnimationFrame(drawLines);
     };
     
-    // بدء الرسم
     drawLines();
     
-    // معالجة تغيير حجم النافذة
     const handleResize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -127,11 +105,74 @@ const CodeBackground = () => {
     };
   }, []);
 
+  return <canvas ref={canvasRef} className="fixed inset-0 z-0" />;
+};
+
+// عناصر زخرفية متحركة مع طابع خطير
+const DecorativeElements = () => {
   return (
-    <canvas 
-      ref={canvasRef} 
-      className="fixed inset-0 z-0"
-    />
+    <>
+      {/* خطوط رأسية متوهجة حمراء */}
+      <div className="absolute left-10 top-1/2 -translate-y-1/2 w-1 h-64 bg-gradient-to-b from-transparent via-red-500/70 to-transparent rounded-full animate-pulse" />
+      <div className="absolute right-10 top-1/2 -translate-y-1/2 w-1 h-64 bg-gradient-to-b from-transparent via-red-500/70 to-transparent rounded-full animate-pulse" />
+      
+      {/* نقاط متوهجة حمراء وصفراء */}
+      <div className="absolute top-20 left-1/4 w-3 h-3 bg-red-500 rounded-full animate-ping" />
+      <div className="absolute bottom-20 right-1/4 w-3 h-3 bg-yellow-500 rounded-full animate-ping" />
+      <div className="absolute top-1/3 right-1/3 w-2 h-2 bg-red-400 rounded-full animate-ping" />
+      <div className="absolute bottom-1/3 left-1/3 w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
+      
+      {/* رموز تحذيرية متحركة */}
+      <div className="absolute top-10 left-10 animate-bounce">
+        <AlertTriangle className="text-red-500 w-8 h-8" />
+      </div>
+      <div className="absolute bottom-10 right-10 animate-pulse">
+        <Skull className="text-red-600 w-10 h-10" />
+      </div>
+      <div className="absolute top-10 right-1/4 animate-ping">
+        <Radiation className="text-yellow-500 w-6 h-6" />
+      </div>
+      <div className="absolute bottom-10 left-1/4 animate-bounce delay-1000">
+        <Lock className="text-red-500 w-8 h-8" />
+      </div>
+    </>
+  );
+};
+
+// مكون تحذيري يظهر بشكل عشوائي
+const RandomWarning = () => {
+  const warnings = [
+    "تحذير: منطقة محظورة - الدخول للمصرح لهم فقط",
+    "تنبيه: جميع الأنشطة مراقبة وتسجل",
+    "تحذير أمني: أي محاولة دخول غير مصرح بها ستتعقب",
+    "تنبيه: هذا النظام محمي بأقصى درجات الأمان",
+    "تحذير: المعلومات في هذا النظام سرية للغاية"
+  ];
+  
+  const [visible, setVisible] = useState(false);
+  const [warning, setWarning] = useState("");
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() > 0.7) {
+        setWarning(warnings[Math.floor(Math.random() * warnings.length)]);
+        setVisible(true);
+        setTimeout(() => setVisible(false), 3000);
+      }
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [warnings]);
+  
+  if (!visible) return null;
+  
+  return (
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-red-900/90 border border-red-700 text-red-200 px-6 py-3 rounded-lg shadow-lg animate-pulse max-w-md text-center">
+      <div className="flex items-center justify-center gap-2">
+        <AlertTriangle className="w-5 h-5" />
+        <span className="font-bold">{warning}</span>
+      </div>
+    </div>
   );
 };
 
@@ -140,6 +181,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
 
   const {
     register,
@@ -149,23 +191,22 @@ export default function AdminLoginPage() {
     setError,
   } = useForm<AdminLoginFormValues>({
     resolver: zodResolver(adminLoginSchema),
-    defaultValues: {
-      email: "",
-      password_input: "",
-    }
+    defaultValues: { email: "", password_input: "" }
   });
 
   const onSubmit: SubmitHandler<AdminLoginFormValues> = async (data) => {
     setIsLoading(true);
+    setFailedAttempts(prev => prev + 1);
+    
     try {
       const result: LoginActionResponse = await adminLoginAction(data);
       setIsLoading(false);
 
       if (result.success) {
-        toast({
-          title: "تسجيل دخول المسؤول",
-          description: result.message || "تم تسجيل الدخول بنجاح.",
-          variant: "default",
+        toast({ 
+          title: "تم التحقق بنجاح", 
+          description: "تم التحقق من هويتك بنجاح. جاري التوجيه إلى لوحة التحكم.", 
+          variant: "default", 
         });
         reset();
         
@@ -182,17 +223,17 @@ export default function AdminLoginPage() {
           router.push('/admin'); 
         }
       } else {
-        toast({
-          title: "خطأ في تسجيل الدخول",
-          description: result.message || "بيانات اعتماد المسؤول غير صحيحة.",
-          variant: "destructive",
+        toast({ 
+          title: "فشل التحقق من الهوية", 
+          description: result.message || "بيانات الاعتماد غير صحيحة أو غير كافية للوصول.", 
+          variant: "destructive", 
         });
         if (result.fieldErrors) {
           for (const [fieldName, fieldErrorMessages] of Object.entries(result.fieldErrors)) {
             if (fieldErrorMessages && fieldErrorMessages.length > 0) {
-              setError(fieldName as keyof AdminLoginFormValues, {
-                type: "server",
-                message: fieldErrorMessages.join(", "),
+              setError(fieldName as keyof AdminLoginFormValues, { 
+                type: "server", 
+                message: fieldErrorMessages.join(", "), 
               });
             }
           }
@@ -201,47 +242,70 @@ export default function AdminLoginPage() {
     } catch (error) {
       setIsLoading(false);
       console.error("Admin login submission error:", error);
-      toast({
-        title: "خطأ غير متوقع",
-        description: "حدث خطأ أثناء محاولة تسجيل الدخول. يرجى المحاولة مرة أخرى.",
-        variant: "destructive",
+      toast({ 
+        title: "خطأ في النظام", 
+        description: "حدث خطأ غير متوقع أثناء محاولة الوصول. يرجى إبلاغ المسؤولين.", 
+        variant: "destructive", 
       });
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4 relative overflow-hidden flex items-center justify-center">
       <style jsx global>{`
+        :root {
+          --gold-color: #d4af37;
+          --gold-color-rgb: 212, 175, 55;
+          --danger-red: #dc2626;
+          --danger-red-rgb: 220, 38, 38;
+        }
         .input-field:focus + .input-label,
         .input-field:not(:placeholder-shown) + .input-label {
           transform: translateY(-1.8rem) scale(0.85);
-          color: #d4af37;
-          background: linear-gradient(to bottom, rgba(31, 41, 55, 1), rgba(31, 41, 55, 0.9));
+          color: var(--danger-red);
+          background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8));
           padding: 0 0.5rem;
           border-radius: 0.25rem;
+          border-left: 2px solid var(--danger-red);
         }
         .login-card {
-          background: rgba(31, 41, 55, 0.92);
-          border: 2px solid rgba(255, 215, 64, 0.18);
-          box-shadow: 0 10px 40px 0 rgba(212,175,55,0.10), 0 2px 24px 0 rgba(0,0,0,0.25);
+          background: rgba(0, 0, 0, 0.85);
+          border: 1px solid rgba(var(--danger-red-rgb), 0.5);
+          box-shadow: 0 0 40px rgba(var(--danger-red-rgb), 0.3), 0 10px 40px rgba(0, 0, 0, 0.5);
           position: relative;
+          transition: all 0.5s ease-in-out;
+          backdrop-filter: blur(10px);
         }
+        .login-card:hover {
+            box-shadow: 0 0 60px rgba(var(--danger-red-rgb), 0.5), 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+        /* تم تعديل الـ clip-path هنا ليكون أعرض */
         .login-card:before {
           content: '';
           position: absolute;
-          inset: -3px;
-          z-index: 0;
+          inset: -2px;
+          z-index: -1;
           border-radius: 1.25rem;
-          background: linear-gradient(120deg, #d4af37 0%, #fffbe6 40%, #d4af37 100%);
-          opacity: 0.18;
-          filter: blur(2px);
+          background: var(--danger-red); /* لون ثابت */
+          opacity: 0.7;
+          filter: blur(15px);
+          clip-path: polygon(0 10px, 0 100%, calc(100% - 10px) 100%, 100% calc(100% - 10px), 100% 0, 10px 0);
         }
         .login-card-inner {
           position: relative;
           z-index: 1;
+          /* تم تعديل الـ clip-path هنا أيضاً */
+          clip-path: polygon(0 10px, 0 100%, calc(100% - 10px) 100%, 100% calc(100% - 10px), 100% 0, 10px 0);
+          padding: 2px;
+          background: linear-gradient(45deg, var(--danger-red), #7f1d1d);
         }
-        .gold-gradient-text {
-          background: linear-gradient(90deg, #d4af37 30%, #fffbe6 70%, #d4af37 100%);
+        .login-terminal-content {
+            background: #0a0a0a;
+            /* تم تعديل الـ clip-path هنا أيضاً */
+            clip-path: polygon(0 10px, 0 100%, calc(100% - 10px) 100%, 100% calc(100% - 10px), 100% 0, 10px 0);
+        }
+        .danger-gradient-text {
+          background: linear-gradient(90deg, var(--danger-red) 30%, #fbbf24 70%, var(--danger-red) 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -253,119 +317,162 @@ export default function AdminLoginPage() {
           align-items: center;
           justify-content: center;
           border-radius: 50%;
-          transition: background 0.2s;
+          transition: all 0.3s;
         }
         .eye-btn:hover {
-          background: rgba(212,175,55,0.08);
+          background: rgba(var(--danger-red-rgb), 0.2);
+          transform: scale(1.1);
         }
         .login-err {
-          background: rgba(255, 0, 0, 0.08);
-          border-right: 3px solid #d32f2f;
-          color: #ffb4b4;
+          background: rgba(239, 68, 68, 0.2);
+          border-right: 3px solid #ef4444;
+          color: #fca5a5;
           padding: 0.5rem 1rem;
           border-radius: 0.5rem;
           margin-top: 0.5rem;
-          font-size: 1rem;
+          font-size: 0.875rem;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, var(--danger-red), #f59e0b);
+            position: relative;
+            overflow: hidden;
+        }
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+        .warning-border {
+          animation: warning-pulse 2s infinite;
+        }
+        @keyframes warning-pulse {
+          0%, 100% { box-shadow: 0 0 5px rgba(220, 38, 38, 0.5); }
+          50% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.8); }
+        }
+        .scanner-line {
+          position: absolute;
+          height: 3px;
+          width: 100%;
+          background: linear-gradient(90deg, transparent, var(--danger-red), transparent);
+          top: 0;
+          left: 0;
+          animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+          0% { top: 0; }
+          50% { top: 100%; }
+          100% { top: 0; }
         }
       `}</style>
+      
       <CodeBackground />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-gray-900/80 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80 z-0" />
+      <DecorativeElements />
+      <RandomWarning />
+      
       <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-2rem)] py-8 w-full">
-        <div className="w-full max-w-md px-2 sm:px-4">
-          <div className="login-card rounded-2xl overflow-hidden p-0 transition-all duration-500 shadow-2xl">
-            <div className="login-card-inner p-8">
-              <div className="text-center mb-8 flex flex-col items-center gap-2">
-                <div className="mx-auto w-fit p-4 bg-gradient-to-tr from-app-gold/30 to-yellow-100/10 rounded-full text-app-gold animate-pulse shadow-lg border border-app-gold/30">
-                  <Shield width="54" height="54" className="drop-shadow-gold" />
+        <div className="w-full max-w-3xl px-2 sm:px-4">
+          <div className="login-card rounded-2xl overflow-hidden p-0 transition-all duration-500 shadow-2xl warning-border relative">
+            <div className="scanner-line"></div>
+            <div className="login-card-inner">
+              <div className="login-terminal-content p-8">
+                <div className="text-center mb-8 flex flex-col items-center gap-2">
+                  <div className="mx-auto w-fit p-4 rounded-full text-red-500 shadow-lg border border-red-500/50 relative">
+                    <div className="absolute inset-0 bg-red-500/30 rounded-full animate-ping" />
+                    <Shield width="54" height="54" className="relative z-10 drop-shadow-red" />
+                  </div>
+                  <h1 className="text-4xl font-extrabold danger-gradient-text mt-4 tracking-tight">منطقة محظورة</h1>
+                  <p className="text-red-300 mt-2 text-base font-medium">الوصول مقصور على الأشخاص المصرح لهم فقط</p>
+                  
+                  <div className="mt-4 bg-red-900/30 border border-red-700 rounded-lg p-3 w-full">
+                    <div className="flex items-center justify-center gap-2 text-red-300">
+                      <AlertTriangle className="w-5 h-5" />
+                      <span className="text-sm">جميع محاولات الدخول يتم تسجيلها ومراقبتها</span>
+                    </div>
+                  </div>
                 </div>
-                <h1 className="text-3xl font-extrabold gold-gradient-text mt-4 tracking-tight">دخول لوحة التحكم</h1>
-                <p className="text-gray-300 mt-2 text-base">الرجاء إدخال بيانات الاعتماد الخاصة بك</p>
+                
+                <div className="mb-6 text-center">
+                  <div className="inline-flex items-center gap-2 bg-black/50 px-4 py-2 rounded-full border border-red-700">
+                    <Lock className="w-4 h-4 text-red-500" />
+                    <span className="text-red-300 text-sm">محاولات الدخول الفاشلة: {failedAttempts}</span>
+                  </div>
+                </div>
+                
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="relative">
+                      <input
+                        {...register("email")}
+                        type="email"
+                        id="email"
+                        className={`w-full px-4 py-4 bg-black/50 border ${errors.email ? 'border-red-500' : 'border-red-700'} rounded-lg text-white input-field focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-300 placeholder:text-gray-500`}
+                        placeholder=" "
+                      />
+                      <label htmlFor="email" className="absolute right-4 top-4 text-gray-500 transition-all duration-300 pointer-events-none input-label origin-right">
+                        البريد الإلكتروني للمصرح له
+                      </label>
+                      {errors.email && <div className="login-err text-sm mt-2 text-right">{errors.email.message}</div>}
+                    </div>
+                    <div className="relative">
+                      <input
+                        {...register("password_input")}
+                        id="password_input"
+                        type={showPassword ? "text" : "password"}
+                        className={`w-full px-4 py-4 bg-black/50 border ${errors.password_input ? 'border-red-500' : 'border-red-700'} rounded-lg text-white input-field focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-300 placeholder:text-gray-500 pr-14`}
+                        placeholder=" "
+                        autoComplete="current-password"
+                      />
+                      <label htmlFor="password_input" className="absolute right-4 top-4 text-gray-500 transition-all duration-300 pointer-events-none input-label origin-right">
+                        كلمة المرور السرية
+                      </label>
+                      <button type="button" tabIndex={-1} aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"} className="eye-btn absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none" onClick={() => setShowPassword((v) => !v)}>
+                        {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+                      </button>
+                      {errors.password_input && <div className="login-err text-sm mt-2 text-right">{errors.password_input.message}</div>}
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <Link href="/forgot-password" className="text-sm text-red-400 hover:text-red-300 transition-colors font-bold">
+                      فقدت بيانات الدخول؟ إبلاغ المسؤول
+                    </Link>
+                  </div>
+                  <button type="submit" disabled={isLoading} className="submit-btn w-full text-white font-extrabold py-4 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-red-500/40 disabled:opacity-70 transform hover:-translate-y-0.5 text-lg tracking-wide border-2 border-red-500/40 hover:scale-[1.03] focus:ring-2 focus:ring-red-500">
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="animate-spin h-5 w-5" />
+                        جاري التحقق من الهوية...
+                      </>
+                    ) : (
+                      <>
+                        <Activity className="w-5 h-5" />
+                        تأكيد الهوية والدخول
+                      </>
+                    )}
+                  </button>
+                  <div className="text-center pt-4 border-t border-red-800/50">
+                    <Link href="/" className="text-sm text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-1 font-bold">
+                      <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+                      الخروج من المنطقة المحظورة
+                    </Link>
+                  </div>
+                </form>
               </div>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
-                <div className="space-y-7">
-                  <div className="relative">
-                    <input
-                      {...register("email")}
-                      type="email"
-                      id="email"
-                      className={`w-full px-4 py-4 bg-gray-800/70 border ${errors.email ? 'border-red-500' : 'border-gray-700'} rounded-lg text-white input-field focus:ring-2 focus:ring-app-gold focus:border-app-gold outline-none transition-all duration-300 placeholder:text-gray-400`}
-                      placeholder=" "
-                    />
-                    <label 
-                      htmlFor="email" 
-                      className="absolute right-4 top-4 text-gray-400 transition-all duration-200 pointer-events-none input-label origin-right"
-                    >
-                      البريد الإلكتروني
-                    </label>
-                    {errors.email && (
-                      <div className="login-err text-sm mt-2 text-right">
-                        {errors.email.message}
-                      </div>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <input
-                      {...register("password_input")}
-                      id="password_input"
-                      type={showPassword ? "text" : "password"}
-                      className={`w-full px-4 py-4 bg-gray-800/70 border ${errors.password_input ? 'border-red-500' : 'border-gray-700'} rounded-lg text-white input-field focus:ring-2 focus:ring-app-gold focus:border-app-gold outline-none transition-all duration-300 placeholder:text-gray-400 pr-14`}
-                      placeholder=" "
-                      autoComplete="current-password"
-                    />
-                    <label 
-                      htmlFor="password_input" 
-                      className="absolute right-4 top-4 text-gray-400 transition-all duration-200 pointer-events-none input-label origin-right"
-                    >
-                      كلمة المرور
-                    </label>
-                    {/* زر إظهار/إخفاء كلمة المرور */}
-                    <button
-                      type="button"
-                      tabIndex={-1}
-                      aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-                      className="eye-btn absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-app-gold focus:outline-none"
-                      onClick={() => setShowPassword((v) => !v)}
-                    >
-                      {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
-                    </button>
-                    {errors.password_input && (
-                      <div className="login-err text-sm mt-2 text-right">
-                        {errors.password_input.message}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                  <Link 
-                    href="/forgot-password" 
-                    className="text-sm text-app-gold hover:text-app-gold/80 transition-colors font-bold"
-                  >
-                    هل نسيت كلمة المرور؟
-                  </Link>
-                </div>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-app-gold to-yellow-400 text-gray-900 font-extrabold py-4 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-app-gold/30 disabled:opacity-70 transform hover:-translate-y-0.5 text-lg tracking-wide border-2 border-app-gold/40 hover:scale-[1.03] focus:ring-2 focus:ring-app-gold"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="animate-spin h-5 w-5" />
-                      جاري المعالجة...
-                    </>
-                  ) : 'تسجيل الدخول'}
-                </button>
-                <div className="text-center pt-4">
-                  <Link 
-                    href="/" 
-                    className="text-sm text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-1 font-bold"
-                  >
-                    <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
-                    العودة للرئيسية
-                  </Link>
-                </div>
-              </form>
             </div>
+          </div>
+          
+          <div className="mt-6 text-center">
+            <p className="text-xs text-red-400/70 max-w-md mx-auto">
+              تحذير: هذا نظام حساس للغاية. الدخول غير المصرح به يعتبر انتهاكًا أمنيًا وسيتم التعامل معه وفقًا للقوانين واللوائح المعمول بها.
+            </p>
           </div>
         </div>
       </div>
