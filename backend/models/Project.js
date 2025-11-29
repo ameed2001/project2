@@ -41,7 +41,8 @@ const projectSchema = new mongoose.Schema(
     name: { type: String, required: true },
     engineer: String,
     clientName: String,
-    status: { type: String, default: 'مخطط له' },
+    status: { type: String, default: 'مخطط له' }, // Project status: مخطط له, قيد التنفيذ, مكتمل, مؤرشف
+    projectStatus: { type: String, enum: ['ACTIVE', 'DELETED'], default: 'ACTIVE' }, // System status: ACTIVE or DELETED
     startDate: String,
     endDate: String,
     description: String,

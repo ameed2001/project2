@@ -16,7 +16,8 @@ import {
   type ProjectStatusType,
   getProjects,
   deleteProject,
-  updateProject
+  updateProject,
+  restoreProject
 } from '@/lib/db';
 
 export default function AdminProjectsPage() {
@@ -24,7 +25,10 @@ export default function AdminProjectsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [adminUserId, setAdminUserId] = useState<string | null>(null);
 
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -35,7 +39,10 @@ export default function AdminProjectsPage() {
 
   useEffect(() => {
     const id = localStorage.getItem('userId');
+    const role = localStorage.getItem('userRole');
     setCurrentUserId(id);
+    setCurrentUserRole(role);
+    setAdminUserId(id); // Admin userId for authentication
   }, []);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,20 +60,24 @@ export default function AdminProjectsPage() {
   
   async function loadProjects() {
     if (!currentUserId) {
+      setIsLoading(false);
       return;
     }
-    const result = await getProjects(currentUserId);
+    setIsLoading(true);
+    // Pass ADMIN role so backend returns all projects
+    const result = await getProjects(currentUserId, currentUserRole || 'ADMIN');
     if (result.success && result.projects) {
       setProjects(result.projects);
     } else {
       toast({ title: "خطأ", description: result.message || "فشل تحميل المشاريع.", variant: "destructive" });
     }
+    setIsLoading(false);
   }
 
   useEffect(() => {
     loadProjects();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUserId]);
+  }, [currentUserId, currentUserRole]);
 
   const handleOpenDeleteDialog = (project: Project) => {
     setProjectToDelete(project);
@@ -80,10 +91,11 @@ export default function AdminProjectsPage() {
   };
 
   async function handleDeleteProject() {
-    if (!projectToDelete) return;
+    if (!projectToDelete || !adminUserId) return;
     setDeleteStep('loading');
 
-    const result = await deleteProject(projectToDelete.id.toString());
+    // Pass adminUserId to permanently delete the project
+    const result = await deleteProject(projectToDelete.id.toString(), currentUserId || undefined, adminUserId);
     if (result.success) {
       setDeleteStep('success');
       setTimeout(() => {
@@ -97,13 +109,14 @@ export default function AdminProjectsPage() {
   }
   
   async function handleRestoreProject() {
-    if (!projectToRestore) return;
-    const result = await updateProject(projectToRestore.id.toString(), { status: 'قيد التنفيذ' });
+    if (!projectToRestore || !adminUserId) return;
+    
+    const result = await restoreProject(projectToRestore.id.toString(), adminUserId);
     if (result.success) {
-      toast({ title: "نجاح", description: "تم استعادة المشروع بنجاح.", variant: "default" });
+      toast({ title: "نجاح", description: result.message || "تم استعادة المشروع بنجاح.", variant: "default" });
       loadProjects();
     } else {
-      toast({ title: "خطأ", description: result.message, variant: "destructive" });
+      toast({ title: "خطأ", description: result.message || "فشل استعادة المشروع.", variant: "destructive" });
     }
     setIsRestoreDialogOpen(false);
   }
@@ -151,19 +164,25 @@ export default function AdminProjectsPage() {
           </Select>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-100">
-                <TableHead className="text-right font-semibold text-gray-700">اسم المشروع</TableHead>
-                <TableHead className="text-right font-semibold text-gray-700">المهندس المسؤول</TableHead>
-                <TableHead className="text-right font-semibold text-gray-700">المالك</TableHead>
-                <TableHead className="text-right font-semibold text-gray-700">الحالة</TableHead>
-                <TableHead className="text-center font-semibold text-gray-700">الإجراءات</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredProjects.length > 0 ? filteredProjects.map((project) => (
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64 space-x-3" dir="ltr">
+            <Loader2 className="h-12 w-12 animate-spin text-app-gold" />
+            <p className="text-lg">جاري تحميل المشاريع...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-100">
+                  <TableHead className="text-right font-semibold text-gray-700">اسم المشروع</TableHead>
+                  <TableHead className="text-right font-semibold text-gray-700">المهندس المسؤول</TableHead>
+                  <TableHead className="text-right font-semibold text-gray-700">المالك</TableHead>
+                  <TableHead className="text-right font-semibold text-gray-700">الحالة</TableHead>
+                  <TableHead className="text-center font-semibold text-gray-700">الإجراءات</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredProjects.length > 0 ? filteredProjects.map((project) => (
                 <TableRow key={project.id} className="hover:bg-gray-50">
                   <TableCell className="font-medium text-app-red hover:underline">
                     <Link href={`/engineer/projects/${project.id}`}>{project.name}</Link>
@@ -171,24 +190,32 @@ export default function AdminProjectsPage() {
                   <TableCell>{project.engineer || 'غير محدد'}</TableCell>
                   <TableCell>{project.clientName || 'غير محدد'}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      project.status === 'مكتمل' ? 'bg-green-100 text-green-700' :
-                      project.status === 'قيد التنفيذ' ? 'bg-yellow-100 text-yellow-700' :
-                      project.status === 'مخطط له' ? 'bg-blue-100 text-blue-700' :
-                      'bg-gray-100 text-gray-700' 
-                    }`}>
-                      {project.status}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        project.status === 'مكتمل' ? 'bg-green-100 text-green-700' :
+                        project.status === 'قيد التنفيذ' ? 'bg-yellow-100 text-yellow-700' :
+                        project.status === 'مخطط له' ? 'bg-blue-100 text-blue-700' :
+                        'bg-gray-100 text-gray-700' 
+                      }`}>
+                        {project.status}
+                      </span>
+                      {(project as any).projectStatus === 'DELETED' && (
+                        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
+                          محذوف
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-center space-x-1 space-x-reverse">
-                    {project.status === 'مؤرشف' && (
-                       <Button variant="ghost" size="icon" className="text-green-600 hover:text-green-800 hover:bg-green-100" onClick={() => handleOpenRestoreDialog(project)}>
+                    {(project as any).projectStatus === 'DELETED' ? (
+                      <Button variant="ghost" size="icon" className="text-green-600 hover:text-green-800 hover:bg-green-100" onClick={() => handleOpenRestoreDialog(project)}>
                         <ArchiveRestore className="h-5 w-5" /><span className="sr-only">استعادة</span>
                       </Button>
-                    )}
-                    <Button variant="ghost" size="icon" className="text-red-600 hover:text-red-800 hover:bg-red-100" onClick={() => handleOpenDeleteDialog(project)}>
+                    ) : (
+                      <Button variant="ghost" size="icon" className="text-red-600 hover:text-red-800 hover:bg-red-100" onClick={() => handleOpenDeleteDialog(project)}>
                         <Trash2 className="h-5 w-5" /><span className="sr-only">حذف</span>
-                    </Button>
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               )) : (
@@ -198,11 +225,15 @@ export default function AdminProjectsPage() {
                   </TableCell>
                 </TableRow>
               )}
-            </TableBody>
-          </Table>
-        </div>
-        {filteredProjects.length > 0 && (
+              </TableBody>
+            </Table>
+          </div>
+        )}
+        {!isLoading && filteredProjects.length > 0 && (
           <p className="text-xs text-gray-500 text-center">يتم عرض {filteredProjects.length} من إجمالي {projects.length} مشروع.</p>
+        )}
+        {!isLoading && projects.length === 0 && (
+          <p className="text-center text-gray-500 py-10">لا توجد مشاريع في النظام حالياً.</p>
         )}
       </CardContent>
     </Card>

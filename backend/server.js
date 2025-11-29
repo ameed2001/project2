@@ -31,6 +31,7 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/password', require('./routes/password'));
 app.use('/api/calculations', require('./routes/calculations'));
+app.use('/api/admin', require('./routes/admin'));
 
 /* ------------------- Database Connection -------------------- */
 

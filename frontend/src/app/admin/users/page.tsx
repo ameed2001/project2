@@ -142,10 +142,10 @@ export default function AdminUsersPage() {
   };
 
   async function handleDeleteUser() {
-    if (!userToDelete) return;
+    if (!userToDelete || !adminUserId) return;
     setDeleteStep("loading");
 
-    const result = await dbDeleteUser(userToDelete.id);
+    const result = await dbDeleteUser(userToDelete.id, adminUserId);
     if (result.success) {
       setDeleteStep("success");
       setTimeout(() => {

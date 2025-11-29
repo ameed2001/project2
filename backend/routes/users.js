@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const { requireAdmin } = require('../middleware/auth');
 const router = express.Router();
 
 // Get user by id (safe)
@@ -44,6 +45,18 @@ router.put('/:id', async (req, res) => {
     if (updates.email) updates.email = String(updates.email).toLowerCase();
     // Prevent passwordHash direct set here
     delete updates.passwordHash;
+    // SECURITY: Prevent role changes unless admin
+    const requestingUserId = req.body.adminUserId || req.query.adminUserId || req.headers['x-admin-user-id'];
+    if (updates.role && updates.role === 'ADMIN') {
+      // Only admins can change roles to ADMIN
+      if (!requestingUserId) {
+        return res.status(403).json({ success: false, message: 'Admin privileges required to change role to ADMIN' });
+      }
+      const requestingUser = await User.findById(requestingUserId);
+      if (!requestingUser || requestingUser.role !== 'ADMIN' || requestingUser.status !== 'ACTIVE') {
+        return res.status(403).json({ success: false, message: 'Admin privileges required to change role to ADMIN' });
+      }
+    }
     const existingWithEmail = updates.email
       ? await User.findOne({ email: updates.email, _id: { $ne: req.params.id } })
       : null;
@@ -58,8 +71,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete user
-router.delete('/:id', async (req, res) => {
+// Delete user (Admin only)
+router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     // حساب تاريخ انتهاء صلاحية الحذف (بعد سنة من الآن)
     const deletionExpiryDate = new Date();
@@ -81,8 +94,8 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Admin reset password
-router.post('/:id/reset-password', async (req, res) => {
+// Admin reset password (Admin only)
+router.post('/:id/reset-password', requireAdmin, async (req, res) => {
   try {
     const { newPassword_input } = req.body;
     const passwordHash = await bcrypt.hash(newPassword_input, 10);
@@ -94,8 +107,8 @@ router.post('/:id/reset-password', async (req, res) => {
   }
 });
 
-// Approve engineer (or toggle status)
-router.post('/:id/approve', async (req, res) => {
+// Approve engineer (or toggle status) (Admin only)
+router.post('/:id/approve', requireAdmin, async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(req.params.id, { status: 'ACTIVE', updatedAt: new Date() }, { new: true, projection: { passwordHash: 0 } });
     if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
@@ -105,8 +118,8 @@ router.post('/:id/approve', async (req, res) => {
   }
 });
 
-// Suspend/Unsuspend
-router.post('/:id/suspend', async (req, res) => {
+// Suspend/Unsuspend (Admin only)
+router.post('/:id/suspend', requireAdmin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
@@ -120,8 +133,8 @@ router.post('/:id/suspend', async (req, res) => {
   }
 });
 
-// Restore deleted user
-router.post('/:id/restore', async (req, res) => {
+// Restore deleted user (Admin only)
+router.post('/:id/restore', requireAdmin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود.' });
