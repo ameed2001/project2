@@ -137,7 +137,7 @@ export async function restoreUserAction(
 
   // استدعاء دالة استعادة المستخدم من قاعدة البيانات
   const { restoreUser } = await import('@/lib/db');
-  const result = await restoreUser(data.userId);
+  const result = await restoreUser(data.userId, adminUserId);
 
   if (!result.success) {
     return {

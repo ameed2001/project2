@@ -128,7 +128,7 @@ export interface SystemSettingsDocument {
 
 // ---- DATABASE I/O HELPERS ----
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 // Removed readDb/writeDb helpers and file-backed cache
 
@@ -411,16 +411,35 @@ export async function updateProject(projectId: string, updates: Partial<Project>
   return { success: true, project: { ...p, id: p.id ?? p._id } as Project };
 }
 
-export async function deleteProject(projectId: string, userId?: string): Promise<{ success: boolean; message?: string }> {
+export async function deleteProject(projectId: string, userId?: string, adminUserId?: string): Promise<{ success: boolean; message?: string }> {
+  const body: any = {};
+  if (userId) body.userId = userId;
+  if (adminUserId) body.adminUserId = adminUserId;
+  
   const res = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
-    body: userId ? JSON.stringify({ userId }) : undefined,
+    body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
   });
   const json = await res.json();
   if (!res.ok || !json.success) return { success: false, message: json.message || 'المشروع غير موجود.' };
-  await logAction('PROJECT_DELETE_SUCCESS', 'INFO', `Project ID ${projectId} hidden for user ${userId || ''}.`);
+  const logMessage = adminUserId 
+    ? `Project ID ${projectId} deleted by admin ${adminUserId}.`
+    : `Project ID ${projectId} hidden for user ${userId || ''}.`;
+  await logAction('PROJECT_DELETE_SUCCESS', 'INFO', logMessage);
   return { success: true, message: json.message || 'تم حذف المشروع بنجاح.' };
+}
+
+export async function restoreProject(projectId: string, adminUserId: string): Promise<{ success: boolean; message?: string }> {
+  const res = await fetch(`${API_BASE_URL}/projects/${projectId}/restore`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ adminUserId }),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل استعادة المشروع.' };
+  await logAction('PROJECT_RESTORE_SUCCESS', 'INFO', `Project ID ${projectId} restored by admin ${adminUserId}.`);
+  return { success: true, message: json.message || 'تم استعادة المشروع بنجاح.' };
 }
 
 export async function getUsers(): Promise<{ success: boolean, users?: Omit<UserDocument, 'password_hash'>[], message?: string }> {
@@ -454,19 +473,40 @@ export async function updateUser(userId: string, updates: Partial<UserDocument>)
   return { success: true, user: json.user, message: 'تم تحديث المستخدم بنجاح.' };
 }
 
-export async function deleteUser(userId: string): Promise<{ success: boolean, message?: string }> {
-  const res = await fetch(`${API_BASE_URL}/users/${userId}`, { method: 'DELETE' });
+export async function deleteUser(userId: string, adminUserId?: string): Promise<{ success: boolean, message?: string }> {
+  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+  const body: any = {};
+  
+  // Send adminUserId in body for authentication
+  if (adminUserId) {
+    body.adminUserId = adminUserId;
+  }
+  
+  const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
+    method: 'DELETE',
+    headers,
+    body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
+  });
   const json = await res.json();
   if (!res.ok || !json.success) return { success: false, message: json.message || 'المستخدم غير موجود.' };
-  await logAction('USER_DELETE_SUCCESS_BY_ADMIN', 'INFO', `User ID ${userId} deleted by admin.`);
+  await logAction('USER_DELETE_SUCCESS_BY_ADMIN', 'INFO', `User ID ${userId} deleted by admin ${adminUserId || ''}.`);
   return { success: true, message: 'تم حذف المستخدم بنجاح.' };
 }
 
-export async function restoreUser(userId: string): Promise<{ success: boolean, message?: string }> {
-  const res = await fetch(`${API_BASE_URL}/users/${userId}/restore`, { method: 'POST' });
+export async function restoreUser(userId: string, adminUserId?: string): Promise<{ success: boolean, message?: string }> {
+  const body: any = {};
+  if (adminUserId) {
+    body.adminUserId = adminUserId;
+  }
+  
+  const res = await fetch(`${API_BASE_URL}/users/${userId}/restore`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
+  });
   const json = await res.json();
   if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل استعادة المستخدم.' };
-  await logAction('USER_RESTORE_SUCCESS', 'INFO', `User ID ${userId} restored by admin.`);
+  await logAction('USER_RESTORE_SUCCESS', 'INFO', `User ID ${userId} restored by admin ${adminUserId || ''}.`);
   return { success: true, message: 'تم استعادة المستخدم بنجاح.' };
 }
 
@@ -474,7 +514,7 @@ export async function adminResetUserPassword(adminUserId: string, targetUserId: 
   const res = await fetch(`${API_BASE_URL}/users/${targetUserId}/reset-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ newPassword_input }),
+    body: JSON.stringify({ newPassword_input, adminUserId }),
   });
   const json = await res.json();
   if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل إعادة تعيين كلمة المرور.' };
@@ -483,7 +523,11 @@ export async function adminResetUserPassword(adminUserId: string, targetUserId: 
 }
 
 export async function approveEngineer(adminUserId: string, engineerUserId: string): Promise<{ success: boolean, message?: string }> {
-  const res = await fetch(`${API_BASE_URL}/users/${engineerUserId}/approve`, { method: 'POST' });
+  const res = await fetch(`${API_BASE_URL}/users/${engineerUserId}/approve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ adminUserId }),
+  });
   const json = await res.json();
   if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل الموافقة على المهندس.' };
   await logAction('ENGINEER_APPROVAL_SUCCESS', 'INFO', `Admin ${adminUserId} approved engineer ${engineerUserId}.`);
@@ -491,7 +535,11 @@ export async function approveEngineer(adminUserId: string, engineerUserId: strin
 }
 
 export async function suspendUser(adminUserId: string, targetUserId: string): Promise<{ success: boolean, message?: string }> {
-  const res = await fetch(`${API_BASE_URL}/users/${targetUserId}/suspend`, { method: 'POST' });
+  const res = await fetch(`${API_BASE_URL}/users/${targetUserId}/suspend`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ adminUserId }),
+  });
   const json = await res.json();
   if (!res.ok || !json.success) return { success: false, message: json.message || 'فشل تغيير حالة المستخدم.' };
   const actionMessage = json.message || 'تم تحديث حالة المستخدم.';

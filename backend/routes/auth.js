@@ -35,6 +35,17 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
     
+    // SECURITY: Prevent ADMIN role registration through public endpoint
+    const normalizedRole = String(role).toUpperCase();
+    if (normalizedRole === 'ADMIN') {
+      console.log('[register] Security: Attempted ADMIN registration blocked.');
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Admin accounts cannot be created through public registration',
+        errorType: 'admin_registration_blocked' 
+      });
+    }
+    
     // التحقق من نطاق البريد الإلكتروني لأصحاب الممتلكات
     if (role.toUpperCase() === 'OWNER' && !isEmailDomainAllowedForOwner(email)) {
       console.log('[register] Error: Email domain not allowed for owner role.');
@@ -67,7 +78,6 @@ router.post('/register', async (req, res) => {
     const passwordHash = await bcrypt.hash(password_input, 10);
     console.log('[register] Password hashed successfully.');
 
-    const normalizedRole = String(role).toUpperCase();
     const initialStatus = status || 'ACTIVE';
 
     const userData = {
